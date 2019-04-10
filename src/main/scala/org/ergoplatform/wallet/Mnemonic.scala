@@ -18,7 +18,7 @@ class Mnemonic(languageId: String, strength: Int) {
     */
   def generate: Try[String] = {
     if (!AllowedStrengths.contains(strength))
-      Failure(new Error(s"Strength should be one of the following [128, 160, 192, 224, 256], but it is $strength."))
+      Failure(new Error(s"Strength should be one of [128, 160, 192, 224, 256], but it is $strength."))
     else toMnemonic(scorex.utils.Random.randomBytes(strength / 8))
   }
 
@@ -44,7 +44,7 @@ class Mnemonic(languageId: String, strength: Int) {
     */
   def toMnemonic(entropy: Array[Byte]): Try[String] = {
     if (!AllowedEntropyLengths.contains(entropy.length))
-      Failure(new Error(s"Entropy length should be one of the following: [16, 20, 24, 28, 32], but it is $strength."))
+      Failure(new Error(s"Entropy length should be one of [16, 20, 24, 28, 32], but it is ${entropy.length}."))
     else {
       val checksum = BitVector(scorex.crypto.hash.Sha256.hash(entropy))
       val entropyWithChecksum = BitVector(entropy) ++ checksum.take(entropy.length / 4)
