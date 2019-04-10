@@ -17,7 +17,7 @@ class Mnemonic(languageId: String, strength: Int) {
     * Generates new mnemonic phrase from system randomness.
     */
   def generate: Try[String] = {
-    if (!Mnemonic.AllowedStrengths.contains(strength))
+    if (!AllowedStrengths.contains(strength))
       Failure(new Error(s"Strength should be one of the following [128, 160, 192, 224, 256], but it is $strength."))
     else toMnemonic(scorex.utils.Random.randomBytes(strength / 8))
   }
@@ -43,16 +43,19 @@ class Mnemonic(languageId: String, strength: Int) {
     * Generates new mnemonic phrase from system randomness.
     */
   def toMnemonic(entropy: Array[Byte]): Try[String] = {
-    if (!Mnemonic.AllowedEntropyLengths.contains(entropy.length))
+    if (!AllowedEntropyLengths.contains(entropy.length))
       Failure(new Error(s"Entropy length should be one of the following: [16, 20, 24, 28, 32], but it is $strength."))
     else {
       val checksum = BitVector(scorex.crypto.hash.Sha256.hash(entropy))
       val entropyWithChecksum = BitVector(entropy) ++ checksum.take(entropy.length / 4)
 
       WordList.load(languageId).map { wordList =>
-        entropyWithChecksum.grouped(Mnemonic.BitsGroupSize).map { wordIndex =>
-          wordList.words(wordIndex.toInt(signed = false))
-        } mkString wordList.delimiter
+        entropyWithChecksum
+          .grouped(BitsGroupSize)
+          .map { wordIndex =>
+            wordList.words(wordIndex.toInt(signed = false))
+          }
+          .mkString(wordList.delimiter)
       }
     }
   }
