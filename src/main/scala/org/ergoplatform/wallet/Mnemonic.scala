@@ -40,7 +40,7 @@ class Mnemonic(languageId: String, strength: Int) {
   }
 
   /**
-    * Generates new mnemonic phrase from system randomness.
+    * Generates new mnemonic phrase from a given entropy.
     */
   def toMnemonic(entropy: Array[Byte]): Try[String] = {
     if (!AllowedEntropyLengths.contains(entropy.length))
