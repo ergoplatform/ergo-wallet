@@ -9,6 +9,11 @@ import scodec.bits.BitVector
 
 import scala.util.{Failure, Try}
 
+/**
+  * BIP39 mnemonic sentence (see: https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki)
+  * @param languageId - language identifier to be used in sentence
+  * @param strength - number of bits in the seed
+  */
 final class Mnemonic(languageId: String, strength: Int) {
 
   import Mnemonic._
