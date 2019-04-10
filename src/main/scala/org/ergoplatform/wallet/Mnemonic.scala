@@ -9,7 +9,7 @@ import scodec.bits.BitVector
 
 import scala.util.{Failure, Try}
 
-class Mnemonic(languageId: String, strength: Int) {
+final class Mnemonic(languageId: String, strength: Int) {
 
   import Mnemonic._
 

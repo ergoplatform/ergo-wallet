@@ -3,7 +3,7 @@ package org.ergoplatform.wallet
 import scala.io.{BufferedSource, Codec, Source}
 import scala.util.{Failure, Try}
 
-case class WordList(words: Seq[String], delimiter: String)
+final case class WordList(words: Seq[String], delimiter: String)
 
 object WordList {
 
