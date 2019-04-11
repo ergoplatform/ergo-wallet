@@ -1,13 +1,12 @@
-package org.ergoplatform.wallet.crypto
+package org.ergoplatform.wallet
 
 import javax.crypto.{Cipher, SecretKeyFactory}
 import javax.crypto.spec.{IvParameterSpec, PBEKeySpec, SecretKeySpec}
-import org.ergoplatform.wallet.EncryptionSettings
 import scorex.crypto.hash.Sha256
 
 import scala.util.{Failure, Success, Try}
 
-object Utils {
+package object crypto {
 
   object AES {
 
@@ -37,7 +36,7 @@ object Utils {
       cipher.init(Cipher.DECRYPT_MODE, keySpec, ivSpec)
 
       val decrypted = cipher.doFinal(cipherText)
-      val unpaded = Utils.unpadPKCS5(decrypted)
+      val unpaded = unpadPKCS5(decrypted)
       val (data, checksum) = unpaded.splitAt(unpaded.length - ChecksumLen)
       if (java.util.Arrays.equals(Sha256.hash(data).take(ChecksumLen), checksum)) Success(data)
       else Failure(new Exception("Data corrupted"))
