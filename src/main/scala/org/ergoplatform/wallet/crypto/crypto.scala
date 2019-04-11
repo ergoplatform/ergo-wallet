@@ -36,10 +36,11 @@ package object crypto {
       cipher.init(Cipher.DECRYPT_MODE, keySpec, ivSpec)
 
       val decrypted = cipher.doFinal(cipherText)
-      val unpaded = unpadPKCS5(decrypted)
-      val (data, checksum) = unpaded.splitAt(unpaded.length - ChecksumLen)
-      if (java.util.Arrays.equals(Sha256.hash(data).take(ChecksumLen), checksum)) Success(data)
-      else Failure(new Exception("Data corrupted"))
+      unpadPKCS5(decrypted).flatMap { unpaded =>
+        val (data, checksum) = unpaded.splitAt(unpaded.length - ChecksumLen)
+        if (java.util.Arrays.equals(Sha256.hash(data).take(ChecksumLen), checksum)) Success(data)
+        else Failure(new Exception("Data corrupted"))
+      }
     }
 
     private def deriveEncryptionKeySpec(pass: String, salt: Array[Byte])
@@ -57,7 +58,7 @@ package object crypto {
     input ++ Array.fill[Byte](padByte)(padByte.toByte)
   }
 
-  def unpadPKCS5(input: Array[Byte]): Array[Byte] = {
+  def unpadPKCS5(input: Array[Byte]): Try[Array[Byte]] = Try {
     val padByte = input.last
     val length = input.length
     require(padByte <= length, "The input was shorter than the padding byte indicates")

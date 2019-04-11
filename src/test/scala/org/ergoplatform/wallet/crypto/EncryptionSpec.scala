@@ -29,4 +29,16 @@ class EncryptionSpec extends PropSpec with Matchers with GeneratorDrivenProperty
     }
   }
 
+  property("AES encryption/decryption failure on corrupted data decryption") {
+    forAll(dataGen, passwordGen, settingsGen) { (data, pass, settings) =>
+      val iv = scorex.utils.Random.randomBytes(16)
+      val salt = scorex.utils.Random.randomBytes(32)
+      val encrypted = crypto.AES.encrypt(data, pass, salt, iv)(settings)
+      encrypted(scala.util.Random.nextInt(encrypted.length)) = 0x0
+      val decryptedTry = crypto.AES.decrypt(encrypted, pass, salt, iv)(settings)
+
+      decryptedTry shouldBe 'failure
+    }
+  }
+
 }

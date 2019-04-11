@@ -4,8 +4,7 @@ import java.io.File
 
 import io.circe.generic.auto._
 import io.circe.parser._
-import org.ergoplatform.wallet.EncryptionSettings
-import org.ergoplatform.wallet.crypto.Utils
+import org.ergoplatform.wallet.{EncryptionSettings, crypto}
 import scorex.crypto.hash.Blake2b256
 import scorex.util.encode.Base16
 import sigmastate.basics.DLogProtocol
@@ -29,7 +28,7 @@ final class JsonSecretStorage(val secretFile: File, encryptionSettings: Encrypti
               .flatMap(salt => Base16.decode(encryptedSecret.iv).map((txt, salt, _)))
           }
           .flatMap { case (cipherText, salt, iv) =>
-            Utils.AES.decrypt(cipherText, pass, salt, iv)(encryptionSettings)
+            crypto.AES.decrypt(cipherText, pass, salt, iv)(encryptionSettings)
           }
       }
       .toTry
