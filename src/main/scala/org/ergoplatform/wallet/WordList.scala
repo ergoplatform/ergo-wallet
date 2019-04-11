@@ -24,15 +24,8 @@ object WordList {
     case other => Failure(new IllegalArgumentException(s"Unknown language $other"))
   }
 
-  private def loadFile(loadFile: () => BufferedSource): Try[Seq[String]] = {
-    Try(loadFile()).map { r =>
-      try {
-        r.getLines().toList
-      } finally {
-        r.close()
-      }
-    }
-  }
+  private def loadFile(loadFile: () => BufferedSource): Try[Seq[String]] =
+    Try(loadFile()).map(r => try r.getLines().toList finally r.close())
 
   private def resourceLoader(fileName: String): () => BufferedSource =
     () => Source.fromResource(s"wordlist/$fileName")(Codec.UTF8)

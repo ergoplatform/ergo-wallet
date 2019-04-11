@@ -73,6 +73,6 @@ object Mnemonic {
   val AllowedEntropyLengths: Seq[Int] = Seq(16, 20, 24, 28, 32)
   val BitsGroupSize = 11
   val Pbkdf2Algorithm = "PBKDF2WithHmacSHA512"
-  val Pbkdf2Iterations = 2048
+  val Pbkdf2Iterations = 2048 // number of iteration specified in BIP39 standard.
   val Pbkdf2KeyLength = 512
 }
