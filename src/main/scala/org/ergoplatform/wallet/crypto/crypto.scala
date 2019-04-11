@@ -2,6 +2,7 @@ package org.ergoplatform.wallet
 
 import javax.crypto.{Cipher, SecretKeyFactory}
 import javax.crypto.spec.{IvParameterSpec, PBEKeySpec, SecretKeySpec}
+import org.ergoplatform.wallet.settings.EncryptionSettings
 import scorex.crypto.hash.Sha256
 
 import scala.util.{Failure, Success, Try}
@@ -12,13 +13,16 @@ package object crypto {
 
     val ChecksumLen = 4
 
+    val CipherAlgo = "AES"
+    val CipherAlgoInstance = s"$CipherAlgo/CTR/PKCS5Padding"
+
     def encrypt(data: Array[Byte], pass: String, salt: Array[Byte], iv: Array[Byte])
                (settings: EncryptionSettings): Array[Byte] = {
       require(data.nonEmpty, "Empty data encryption attempt")
       val keySpec = deriveEncryptionKeySpec(pass, salt)(settings)
       val ivSpec = new IvParameterSpec(iv)
 
-      val cipher = Cipher.getInstance("AES/CTR/PKCS5Padding")
+      val cipher = Cipher.getInstance(CipherAlgoInstance)
       cipher.init(Cipher.ENCRYPT_MODE, keySpec, ivSpec)
 
       val checksum = Sha256.hash(data).take(ChecksumLen)
@@ -32,7 +36,7 @@ package object crypto {
       val keySpec = deriveEncryptionKeySpec(pass, salt)(settings)
       val ivSpec = new IvParameterSpec(iv)
 
-      val cipher = Cipher.getInstance("AES/CTR/PKCS5Padding")
+      val cipher = Cipher.getInstance(CipherAlgoInstance)
       cipher.init(Cipher.DECRYPT_MODE, keySpec, ivSpec)
 
       val decrypted = cipher.doFinal(cipherText)
@@ -48,7 +52,7 @@ package object crypto {
       val pbeSpec = new PBEKeySpec(pass.toCharArray, salt, settings.c, settings.dkLen)
       val skf = SecretKeyFactory.getInstance(s"PBKDF2With${settings.prf}")
       val encryptionKey = skf.generateSecret(pbeSpec).getEncoded
-      new SecretKeySpec(encryptionKey, "AES")
+      new SecretKeySpec(encryptionKey, CipherAlgo)
     }
 
   }
@@ -58,15 +62,14 @@ package object crypto {
     input ++ Array.fill[Byte](padByte)(padByte.toByte)
   }
 
-  def unpadPKCS5(input: Array[Byte]): Try[Array[Byte]] = Try {
+  def unpadPKCS5(input: Array[Byte]): Try[Array[Byte]] = {
     val padByte = input.last
     val length = input.length
-    require(padByte <= length, "The input was shorter than the padding byte indicates")
-    require(
-      input.takeRight(padByte).containsSlice(Array.fill[Byte](padByte)(padByte)),
-      "Padding format is not as being expected"
-    )
-    input.take(length - padByte)
+
+    if (padByte > length) Failure(new Exception("The input was shorter than the padding byte indicates"))
+    else if (!input.takeRight(padByte).containsSlice(Array.fill[Byte](padByte)(padByte)))
+      Failure(new Exception("Padding format is not as expected"))
+    else Success(input.take(length - padByte))
   }
 
 }

@@ -1,6 +1,7 @@
 package org.ergoplatform.wallet.crypto
 
-import org.ergoplatform.wallet.{EncryptionSettings, crypto}
+import org.ergoplatform.wallet.crypto
+import org.ergoplatform.wallet.settings.EncryptionSettings
 import org.scalacheck.{Gen, Shrink}
 import org.scalatest.prop.GeneratorDrivenPropertyChecks
 import org.scalatest.{Matchers, PropSpec}
@@ -29,7 +30,7 @@ class EncryptionSpec extends PropSpec with Matchers with GeneratorDrivenProperty
     }
   }
 
-  property("AES encryption/decryption failure on corrupted data decryption") {
+  property("AES encryption/decryption - failure on corrupted data decryption") {
     forAll(dataGen, passwordGen, settingsGen) { (data, pass, settings) =>
       val iv = scorex.utils.Random.randomBytes(16)
       val salt = scorex.utils.Random.randomBytes(32)

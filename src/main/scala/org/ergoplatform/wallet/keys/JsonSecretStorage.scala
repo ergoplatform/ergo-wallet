@@ -4,14 +4,16 @@ import java.io.File
 
 import io.circe.generic.auto._
 import io.circe.parser._
-import org.ergoplatform.wallet.{EncryptionSettings, crypto}
+import org.ergoplatform.wallet.crypto
+import org.ergoplatform.wallet.settings.EncryptionSettings
 import scorex.crypto.hash.Blake2b256
 import scorex.util.encode.Base16
 import sigmastate.basics.DLogProtocol
 
 import scala.util.Try
 
-final class JsonSecretStorage(val secretFile: File, encryptionSettings: EncryptionSettings) extends SecretStorage {
+final class JsonSecretStorage(val secretFile: File, encryptionSettings: EncryptionSettings)
+  extends SecretStorage {
 
   private var unlockedSecrets: Map[Int, SecureSecret] = Map.empty
 
