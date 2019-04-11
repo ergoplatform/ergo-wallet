@@ -1,10 +1,10 @@
-package org.ergoplatform.wallet
+package org.ergoplatform.wallet.mnemonic
 
 import java.text.Normalizer.Form.NFKD
 import java.text.Normalizer.normalize
+
 import javax.crypto.SecretKeyFactory
 import javax.crypto.spec.PBEKeySpec
-
 import scodec.bits.BitVector
 
 import scala.util.{Failure, Try}

@@ -3,6 +3,7 @@ package org.ergoplatform.wallet
 import java.text.Normalizer.Form.NFKD
 import java.text.Normalizer.normalize
 
+import org.ergoplatform.wallet.mnemonic.Mnemonic
 import org.scalacheck.Gen
 import org.scalatest.prop.{Checkers, GeneratorDrivenPropertyChecks, TableDrivenPropertyChecks}
 import org.scalatest.{FlatSpec, Matchers}

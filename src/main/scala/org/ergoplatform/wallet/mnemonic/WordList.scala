@@ -1,4 +1,4 @@
-package org.ergoplatform.wallet
+package org.ergoplatform.wallet.mnemonic
 
 import scala.io.{BufferedSource, Codec, Source}
 import scala.util.{Failure, Try}

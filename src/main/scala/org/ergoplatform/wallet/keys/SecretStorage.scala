@@ -2,15 +2,15 @@ package org.ergoplatform.wallet.keys
 
 import java.io.File
 
-import sigmastate.basics.DLogProtocol.DLogProverInput
+import sigmastate.basics.DLogProtocol
 
 import scala.util.Try
 
 trait SecretStorage {
 
-  val keyDir: File
+  val secretFile: File
 
-  def secrets: IndexedSeq[DLogProverInput]
+  def secrets: Map[Int, DLogProtocol.DLogProverInput]
 
   def unlock(secretsIndices: IndexedSeq[Int], passphrase: String): Try[Unit]
 
