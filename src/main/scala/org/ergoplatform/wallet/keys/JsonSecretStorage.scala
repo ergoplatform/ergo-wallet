@@ -1,11 +1,13 @@
 package org.ergoplatform.wallet.keys
 
-import java.io.File
+import java.io.{File, PrintWriter}
+import java.util.UUID
 
 import io.circe.generic.auto._
 import io.circe.parser._
+import io.circe.syntax._
 import org.ergoplatform.wallet.crypto
-import org.ergoplatform.wallet.settings.EncryptionSettings
+import org.ergoplatform.wallet.settings.{EncryptionSettings, WalletSettings}
 import scorex.crypto.hash.Blake2b256
 import scorex.util.encode.Base16
 import sigmastate.basics.DLogProtocol
@@ -49,5 +51,26 @@ final class JsonSecretStorage(val secretFile: File, encryptionSettings: Encrypti
 
   private def secretFromSeed(idx: Int, seed: Array[Byte]): SecureSecret =
     new SecureSecret(Blake2b256.hash(idx + Base16.encode(seed)))
+
+}
+
+object JsonSecretStorage {
+
+  def init(seed: Array[Byte], pass: String)(settings: WalletSettings): JsonSecretStorage = {
+    val iv = scorex.utils.Random.randomBytes(16)
+    val salt = scorex.utils.Random.randomBytes(32)
+    val encrypted = crypto.AES.encrypt(seed, pass, salt, iv)(settings.encryption)
+    val encryptedSecret = EncryptedSecret(encrypted, salt, iv)
+    val uuid = UUID.nameUUIDFromBytes(encrypted)
+    new File(settings.secretDir).mkdirs()
+    val file = new File(s"${settings.secretDir}/$uuid.json")
+    val outWriter = new PrintWriter(file)
+    val jsonRaw = encryptedSecret.asJson.noSpaces
+
+    outWriter.write(jsonRaw)
+    outWriter.close()
+
+    new JsonSecretStorage(file, settings.encryption)
+  }
 
 }
