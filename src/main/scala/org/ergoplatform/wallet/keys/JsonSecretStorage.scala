@@ -4,8 +4,6 @@ import java.io.File
 
 import io.circe.generic.auto._
 import io.circe.parser._
-import javax.crypto.{Cipher, SecretKeyFactory}
-import javax.crypto.spec.{IvParameterSpec, PBEKeySpec, SecretKeySpec}
 import org.ergoplatform.wallet.EncryptionSettings
 import org.ergoplatform.wallet.crypto.Utils
 import scorex.crypto.hash.Blake2b256
@@ -30,21 +28,17 @@ final class JsonSecretStorage(val secretFile: File, encryptionSettings: Encrypti
             Base16.decode(encryptedSecret.salt)
               .flatMap(salt => Base16.decode(encryptedSecret.iv).map((txt, salt, _)))
           }
-          .foreach { case (cipherText, salt, iv) =>
-            val pbeSpec = new PBEKeySpec(pass.toCharArray, salt, encryptionSettings.c, encryptionSettings.dkLen)
-            val skf = SecretKeyFactory.getInstance(s"PBKDF2With${encryptionSettings.prf}")
-            val encryptionKey = skf.generateSecret(pbeSpec).getEncoded
-            val keySpec = new SecretKeySpec(encryptionKey, "AES")
-            val ivSpec = new IvParameterSpec(iv)
-            val cipher = Cipher.getInstance("AES/CBC/PKCS5Padding")
-            cipher.init(Cipher.DECRYPT_MODE, keySpec, ivSpec)
-            val seed = Utils.unpadPKCS5(cipher.doFinal(cipherText))
-            secretsIndices.foreach { idx =>
-              unlockedSecrets += idx -> secretFromSeed(idx, seed)
-            }
+          .flatMap { case (cipherText, salt, iv) =>
+            Utils.AES.decrypt(cipherText, pass, salt, iv)(encryptionSettings)
           }
       }
       .toTry
+      .flatten
+      .map { seed =>
+        secretsIndices.foreach { idx =>
+          unlockedSecrets += idx -> secretFromSeed(idx, seed)
+        }
+      }
   }
 
   override def lock(): Unit = {
