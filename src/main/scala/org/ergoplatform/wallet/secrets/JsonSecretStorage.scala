@@ -1,4 +1,4 @@
-package org.ergoplatform.wallet.keys
+package org.ergoplatform.wallet.secrets
 
 import java.io.{File, PrintWriter}
 import java.util.UUID
@@ -8,7 +8,6 @@ import io.circe.parser._
 import io.circe.syntax._
 import org.ergoplatform.wallet.crypto
 import org.ergoplatform.wallet.settings.{EncryptionSettings, WalletSettings}
-import scorex.crypto.hash.Blake2b256
 import scorex.util.encode.Base16
 
 import scala.util.Try
@@ -44,7 +43,7 @@ final class JsonSecretStorage(val secretFile: File, encryptionSettings: Encrypti
       .flatten
       .map { seed =>
         secretsIndices.foreach { idx =>
-          unlockedSecrets += idx -> secretFromSeed(idx, seed)
+          unlockedSecrets += idx -> new SecureSecret(secretFromSeed(idx, seed))
         }
       }
   }
@@ -53,9 +52,6 @@ final class JsonSecretStorage(val secretFile: File, encryptionSettings: Encrypti
     unlockedSecrets.values.foreach(_.zeroSecret())
     unlockedSecrets = Map.empty
   }
-
-  private def secretFromSeed(idx: Int, seed: Array[Byte]): SecureSecret =
-    new SecureSecret(Blake2b256.hash(idx + Base16.encode(seed)))
 
 }
 

@@ -1,4 +1,4 @@
-package org.ergoplatform.wallet.keys
+package org.ergoplatform.wallet.secrets
 
 import org.bouncycastle.util.BigIntegers
 import sigmastate.basics.DLogProtocol.DLogProverInput

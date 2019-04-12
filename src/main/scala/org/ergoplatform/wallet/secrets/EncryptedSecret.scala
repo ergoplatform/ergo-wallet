@@ -1,4 +1,4 @@
-package org.ergoplatform.wallet.keys
+package org.ergoplatform.wallet.secrets
 
 import org.ergoplatform.wallet.settings.EncryptionSettings
 import scorex.util.encode.Base16
