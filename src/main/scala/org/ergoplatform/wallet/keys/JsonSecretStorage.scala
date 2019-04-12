@@ -10,17 +10,22 @@ import org.ergoplatform.wallet.crypto
 import org.ergoplatform.wallet.settings.{EncryptionSettings, WalletSettings}
 import scorex.crypto.hash.Blake2b256
 import scorex.util.encode.Base16
-import sigmastate.basics.DLogProtocol
 
 import scala.util.Try
 
+/**
+  * Secret storage backend. Stores encrypted seed in json file in the file system.
+  * Responsible for managing access to the secrets.
+  */
 final class JsonSecretStorage(val secretFile: File, encryptionSettings: EncryptionSettings)
   extends SecretStorage {
 
   private var unlockedSecrets: Map[Int, SecureSecret] = Map.empty
 
-  override def secrets: Map[Int, DLogProtocol.DLogProverInput] =
-    unlockedSecrets.map { case (i, x) => i -> x.secret }
+  override def isLocked: Boolean = unlockedSecrets.isEmpty
+
+  override def secrets: Map[Int, SecureSecret] =
+    unlockedSecrets.map { case (i, x) => i -> x }
 
   override def unlock(secretsIndices: IndexedSeq[Int], pass: String): Try[Unit] = {
     val secretFileRaw = scala.io.Source.fromFile(secretFile, "UTF-8").getLines().mkString
@@ -56,11 +61,14 @@ final class JsonSecretStorage(val secretFile: File, encryptionSettings: Encrypti
 
 object JsonSecretStorage {
 
+  /**
+    * Initializes storage instance with new wallet file encrypted with the given `pass`.
+    */
   def init(seed: Array[Byte], pass: String)(settings: WalletSettings): JsonSecretStorage = {
     val iv = scorex.utils.Random.randomBytes(16)
     val salt = scorex.utils.Random.randomBytes(32)
     val encrypted = crypto.AES.encrypt(seed, pass, salt, iv)(settings.encryption)
-    val encryptedSecret = EncryptedSecret(encrypted, salt, iv)
+    val encryptedSecret = EncryptedSecret(encrypted, salt, iv, settings.encryption)
     val uuid = UUID.nameUUIDFromBytes(encrypted)
     new File(settings.secretDir).mkdirs()
     val file = new File(s"${settings.secretDir}/$uuid.json")

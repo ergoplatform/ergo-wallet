@@ -3,22 +3,20 @@ package org.ergoplatform.wallet
 import java.text.Normalizer.Form.NFKD
 import java.text.Normalizer.normalize
 
-import org.ergoplatform.wallet.mnemonic.{Mnemonic, WordList}
-import org.scalacheck.Gen
+import org.ergoplatform.wallet.mnemonic.Mnemonic
 import org.scalatest.prop.{Checkers, GeneratorDrivenPropertyChecks, TableDrivenPropertyChecks}
 import org.scalatest.{FlatSpec, Matchers}
 import scorex.util.encode.Base16
 
 import scala.util.Try
 
-class MnemonicSpec extends FlatSpec with Matchers with TableDrivenPropertyChecks with GeneratorDrivenPropertyChecks with Checkers {
-
-  val mnemonicGen: Gen[Mnemonic] = for {
-    lang <- Gen.oneOf(WordList.AvailableLanguages)
-    strength <- Gen.oneOf(Mnemonic.AllowedStrengths)
-  } yield new Mnemonic(lang, strength)
-
-  val entropyGen: Gen[Array[Byte]] = Gen.oneOf(Mnemonic.AllowedEntropyLengths).map(scorex.utils.Random.randomBytes)
+class MnemonicSpec
+  extends FlatSpec
+    with Matchers
+    with TableDrivenPropertyChecks
+    with GeneratorDrivenPropertyChecks
+    with Checkers
+    with Generators {
 
   it should "pass https://github.com/trezor/python-mnemonic/blob/master/vectors.json" in {
     val lang = "english"
@@ -400,13 +398,13 @@ class MnemonicSpec extends FlatSpec with Matchers with TableDrivenPropertyChecks
 
   def runChecks(entropy: String,
                 sentence: String,
-                passphrase: String,
+                pass: String,
                 seed: String,
                 langId: String): Unit = {
     val sentenceSize = if (langId == "japanese") sentence.split("\u3000").length else sentence.split(" ").length
     val strength = Mnemonic.AllowedStrengths.zip(Mnemonic.MnemonicSentenceSizes).find(_._2 == sentenceSize).map(_._1).get
     val mnemonic = new Mnemonic(langId, strength)
-    Base16.encode(mnemonic.toSeed(sentence, Some(passphrase))) shouldEqual seed
+    Base16.encode(mnemonic.toSeed(sentence, Some(pass))) shouldEqual seed
     normalize(mnemonic.toMnemonic(Base16.decode(entropy).get).get, NFKD) shouldEqual normalize(sentence, NFKD)
   }
 

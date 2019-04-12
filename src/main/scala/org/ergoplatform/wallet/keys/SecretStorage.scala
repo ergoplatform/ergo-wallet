@@ -10,9 +10,11 @@ trait SecretStorage {
 
   val secretFile: File
 
-  def secrets: Map[Int, DLogProtocol.DLogProverInput]
+  def isLocked: Boolean
 
-  def unlock(secretsIndices: IndexedSeq[Int], passphrase: String): Try[Unit]
+  def secrets: Map[Int, SecureSecret]
+
+  def unlock(secretsIndices: IndexedSeq[Int], pass: String): Try[Unit]
 
   def lock(): Unit
 
