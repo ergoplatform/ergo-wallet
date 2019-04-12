@@ -1,6 +1,7 @@
 package org.ergoplatform.wallet.crypto
 
-import org.ergoplatform.wallet.{Generators, crypto}
+import org.ergoplatform.wallet.crypto
+import org.ergoplatform.wallet.utils.Generators
 import org.scalacheck.Shrink
 import org.scalatest.prop.GeneratorDrivenPropertyChecks
 import org.scalatest.{Matchers, PropSpec}

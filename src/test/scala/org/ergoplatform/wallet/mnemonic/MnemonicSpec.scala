@@ -1,9 +1,9 @@
-package org.ergoplatform.wallet
+package org.ergoplatform.wallet.mnemonic
 
 import java.text.Normalizer.Form.NFKD
 import java.text.Normalizer.normalize
 
-import org.ergoplatform.wallet.mnemonic.Mnemonic
+import org.ergoplatform.wallet.utils.Generators
 import org.scalatest.prop.{Checkers, GeneratorDrivenPropertyChecks, TableDrivenPropertyChecks}
 import org.scalatest.{FlatSpec, Matchers}
 import scorex.util.encode.Base16

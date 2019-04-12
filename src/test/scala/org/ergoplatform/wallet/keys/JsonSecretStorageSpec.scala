@@ -1,7 +1,7 @@
 package org.ergoplatform.wallet.keys
 
 import org.ergoplatform.wallet.settings.WalletSettings
-import org.ergoplatform.wallet.{FileUtils, Generators}
+import org.ergoplatform.wallet.utils.{FileUtils, Generators}
 import org.scalatest.prop.GeneratorDrivenPropertyChecks
 import org.scalatest.{Matchers, PropSpec}
 

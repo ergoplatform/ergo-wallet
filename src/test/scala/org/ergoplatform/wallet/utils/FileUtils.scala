@@ -1,4 +1,4 @@
-package org.ergoplatform.wallet
+package org.ergoplatform.wallet.utils
 
 trait FileUtils {
 

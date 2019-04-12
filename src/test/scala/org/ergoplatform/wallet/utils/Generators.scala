@@ -1,4 +1,4 @@
-package org.ergoplatform.wallet
+package org.ergoplatform.wallet.utils
 
 import org.ergoplatform.wallet.mnemonic.{Mnemonic, WordList}
 import org.ergoplatform.wallet.settings.EncryptionSettings
