@@ -18,9 +18,8 @@ import scala.util.{Failure, Success, Try}
   * blockchain state) by using the secrets (no additional inputs, e.g. hash function preimages required in scripts,
   * are supported. Here, signing a transaction means spending proofs generation for all of its input boxes.
   *
-  * @param seed    - a secret seed value
-  * @param maxCost - max cost of all the transaction input scripts combined (the prover refuses to sign a transaction
-  *                if the total cost exceeds the limit)
+  * @param secrets - secrets to be used by prover
+  * @param params  - ergo network parameters
   */
 class ErgoProvingInterpreter(val secrets: IndexedSeq[DLogProverInput], params: ErgoLikeParameters)
                             (implicit IR: IRContext)
@@ -32,12 +31,11 @@ class ErgoProvingInterpreter(val secrets: IndexedSeq[DLogProverInput], params: E
   def sign(unsignedTx: UnsignedErgoLikeTransaction,
            boxesToSpend: IndexedSeq[ErgoBox],
            dataBoxes: IndexedSeq[ErgoBox],
-           stateContext: ErgoLikeStateContext): Try[ErgoLikeTransactionTemplate[Input]] = Try {
-
-    require(unsignedTx.inputs.length == boxesToSpend.length, "Not enough boxes to spend")
-    require(unsignedTx.dataInputs.length == dataBoxes.length, "Not enough data boxes")
-
-    boxesToSpend.zipWithIndex
+           stateContext: ErgoLikeStateContext): Try[ErgoLikeTransactionTemplate[Input]] = {
+    if (unsignedTx.inputs.length != boxesToSpend.length) Failure(new Exception("Not enough boxes to spend"))
+    else if (unsignedTx.dataInputs.length != dataBoxes.length) Failure(new Exception("Not enough data boxes"))
+    else boxesToSpend
+      .zipWithIndex
       .foldLeft(Try(IndexedSeq[Input]() -> 0L)) { case (inputsCostTry, (inputBox, boxIdx)) =>
         val unsignedInput = unsignedTx.inputs(boxIdx)
         require(util.Arrays.equals(unsignedInput.boxId, inputBox.id))
@@ -60,7 +58,7 @@ class ErgoProvingInterpreter(val secrets: IndexedSeq[DLogProverInput], params: E
       .map { case (inputs, _) =>
         new ErgoLikeTransaction(inputs.reverse, unsignedTx.dataInputs, unsignedTx.outputCandidates)
       }
-  }.flatten
+  }
 
 }
 
