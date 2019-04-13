@@ -6,7 +6,7 @@ import scorex.util.encode.Base16
 
 class SecretDerivationSpec extends FlatSpec with Matchers with TableDrivenPropertyChecks {
 
-  it should "generate correct secret from the given seed" in {
+  it should "generate correct secret from a given seed" in {
     val cases = Table(
       ("seed_strength", "seed", "index", "secret"),
       (224, "63204534b0ae6a245acb261273740afa652fa77962e52e3e0572a32f", 1, "9363fa3260fd122a2c1785e3f8f5bf2cdf3d652e8d9d6d55bc0c1876e0c6863a"),

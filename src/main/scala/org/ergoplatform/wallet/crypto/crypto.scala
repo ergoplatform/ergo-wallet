@@ -16,6 +16,12 @@ package object crypto {
     val CipherAlgo = "AES"
     val CipherAlgoInstance = s"$CipherAlgo/CTR/PKCS5Padding"
 
+    /**
+      * @param data - data to encrypt
+      * @param pass - password to derive encryption key from
+      * @param salt - sequence of bits, known as a cryptographic salt
+      * @param iv   - cipher initialization vector
+      */
     def encrypt(data: Array[Byte], pass: String, salt: Array[Byte], iv: Array[Byte])
                (settings: EncryptionSettings): Array[Byte] = {
       require(data.nonEmpty, "Empty data encryption attempt")
@@ -30,6 +36,12 @@ package object crypto {
       cipher.doFinal(padded)
     }
 
+    /**
+      * @param cipherText - data to decrypt
+      * @param pass       - password to derive decryption key from
+      * @param salt       - sequence of bits, known as a cryptographic salt
+      * @param iv         - cipher initialization vector
+      */
     def decrypt(cipherText: Array[Byte], pass: String, salt: Array[Byte], iv: Array[Byte])
                (settings: EncryptionSettings): Try[Array[Byte]] = {
       require(cipherText.nonEmpty, "Empty ciphertext decryption attempt")

@@ -13,7 +13,8 @@ import scorex.util.encode.Base16
 import scala.util.Try
 
 /**
-  * Secret storage backend. Stores encrypted seed in json file in the file system.
+  * Secret storage backend.
+  * Stores encrypted seed in json file (structure is described by [[EncryptedSecret]]).
   * Responsible for managing access to the secrets.
   */
 final class JsonSecretStorage(val secretFile: File, encryptionSettings: EncryptionSettings)
@@ -23,9 +24,14 @@ final class JsonSecretStorage(val secretFile: File, encryptionSettings: Encrypti
 
   override def isLocked: Boolean = unlockedSecrets.isEmpty
 
-  override def secrets: Map[Int, SecureSecret] =
-    unlockedSecrets.map { case (i, x) => i -> x }
+  override def secrets: Map[Int, SecureSecret] = unlockedSecrets
 
+  /**
+    * Makes secrets with `secretsIndices` available through `secrets` call.
+    *
+    * @param secretsIndices - Indexes of secrets to unlock
+    * @param pass           - Password to be used to decrypt secret
+    */
   override def unlock(secretsIndices: IndexedSeq[Int], pass: String): Try[Unit] = {
     val secretFileRaw = scala.io.Source.fromFile(secretFile, "UTF-8").getLines().mkString
     decode[EncryptedSecret](secretFileRaw)
@@ -48,6 +54,9 @@ final class JsonSecretStorage(val secretFile: File, encryptionSettings: Encrypti
       }
   }
 
+  /**
+    * Destroys all loaded secrets.
+    */
   override def lock(): Unit = {
     unlockedSecrets.values.foreach(_.zeroSecret())
     unlockedSecrets = Map.empty
