@@ -12,7 +12,7 @@ class JsonSecretStorageSpec
     with Generators
     with FileUtils {
 
-  property("Initialization and unlock") {
+  property("initialization and unlock") {
     forAll(entropyGen, passwordGen, encryptionSettingsGen) { (seed, pass, cryptoSettings) =>
       val dir = createTempDir
       val settings = WalletSettings(dir.getAbsolutePath, cryptoSettings)
