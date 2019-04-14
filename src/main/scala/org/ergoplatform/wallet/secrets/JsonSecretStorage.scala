@@ -29,9 +29,8 @@ final class JsonSecretStorage(val secretFile: File, encryptionSettings: Encrypti
 
   /**
     * Makes secrets with `secretsIndices` available through `secrets` call.
-    *
-    * @param secretsIndices - Indexes of secrets to unlock
-    * @param pass           - Password to be used to decrypt secret
+    * @param secretsIndices - indexes of secrets to unlock
+    * @param pass           - password to be used to decrypt secret
     */
   override def unlock(secretsIndices: IndexedSeq[Int], pass: String): Try[Unit] = {
     val secretFileRaw = scala.io.Source.fromFile(secretFile, "UTF-8").getLines().mkString
