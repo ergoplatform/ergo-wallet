@@ -42,10 +42,10 @@ package object crypto {
 
     /**
       * @param ciphertext - data to decrypt
-      * @param pass - password to derive decryption key from
-      * @param salt - sequence of bits, known as a cryptographic salt
-      * @param iv   - cipher initialization vector
-      * @param mac  - encryption key MAC
+      * @param pass       - password to derive decryption key from
+      * @param salt       - sequence of bits, known as a cryptographic salt
+      * @param iv         - cipher initialization vector
+      * @param mac        - encryption key MAC
       */
     def decrypt(ciphertext: Array[Byte], pass: String, salt: Array[Byte], iv: Array[Byte], mac: Array[Byte])
                (settings: EncryptionSettings): Try[Array[Byte]] = {
