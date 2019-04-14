@@ -47,11 +47,8 @@ class ErgoProvingInterpreter(val secrets: IndexedSeq[DLogProverInput], params: E
 
           prove(inputBox.ergoTree, context, unsignedTx.messageToSign).flatMap { proverResult =>
             val newTC = totalCost + proverResult.cost
-            if (newTC > maxCost) {
-              Failure(new Exception(s"Computational cost of transaction $unsignedTx exceeds limit $maxCost"))
-            } else {
-              Success((Input(unsignedInput.boxId, proverResult) +: ins) -> newTC)
-            }
+            if (newTC > maxCost) Failure(new Exception(s"Cost of transaction $unsignedTx exceeds limit $maxCost"))
+            else Success((Input(unsignedInput.boxId, proverResult) +: ins) -> newTC)
           }
         }
       }
@@ -61,7 +58,6 @@ class ErgoProvingInterpreter(val secrets: IndexedSeq[DLogProverInput], params: E
   }
 
 }
-
 
 object ErgoProvingInterpreter {
 

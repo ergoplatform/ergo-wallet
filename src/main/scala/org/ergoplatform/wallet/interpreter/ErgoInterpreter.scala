@@ -47,23 +47,22 @@ class ErgoInterpreter(params: ErgoLikeParameters)(implicit IR: IRContext)
                       proof: Array[Byte],
                       message: Array[Byte]): Try[VerificationResult] = {
 
-    lazy val varId = Constants.StorageIndexVarId
-
+    val varId = Constants.StorageIndexVarId
+    val hasEnoughTimeToBeSpent = context.currentHeight - context.self.creationHeight >= Constants.StoragePeriod
     //no proof provided and enough time since box creation to spend it
-    if (context.currentHeight - context.self.creationHeight >= Constants.StoragePeriod
-      && proof.length == 0
-      && context.extension.values.contains(varId)) {
-
+    if (hasEnoughTimeToBeSpent && proof.length == 0 && context.extension.values.contains(varId)) {
       Try {
         val idx = context.extension.values(varId).value.asInstanceOf[Short]
         val outputCandidate = context.spendingTransaction.outputCandidates(idx)
-
         checkExpiredBox(context.self, outputCandidate, context.currentHeight) -> Constants.StorageContractCost
-      }.recoverWith { case _ => super.verify(env, exp, context, proof, message) }
+      }.recoverWith { case _ =>
+        super.verify(env, exp, context, proof, message)
+      }
     } else {
       super.verify(env, exp, context, proof, message)
     }
   }
+
 }
 
 object ErgoInterpreter {
