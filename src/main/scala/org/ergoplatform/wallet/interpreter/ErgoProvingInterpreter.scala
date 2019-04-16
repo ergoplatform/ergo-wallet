@@ -3,7 +3,7 @@ package org.ergoplatform.wallet.interpreter
 import java.util
 
 import org.ergoplatform._
-import org.ergoplatform.wallet.protocol.context.{ErgoContext, ErgoLikeParameters, ErgoLikeStateContext, TransactionContext}
+import org.ergoplatform.wallet.protocol.context.{ErgoLikeParameters, ErgoLikeStateContext, TransactionContext}
 import sigmastate.basics.DLogProtocol.{DLogProverInput, ProveDlog}
 import sigmastate.eval.{IRContext, RuntimeIRContext}
 import sigmastate.interpreter.{ContextExtension, ProverInterpreter}
@@ -31,7 +31,7 @@ class ErgoProvingInterpreter(val secrets: IndexedSeq[DLogProverInput], params: E
   def sign(unsignedTx: UnsignedErgoLikeTransaction,
            boxesToSpend: IndexedSeq[ErgoBox],
            dataBoxes: IndexedSeq[ErgoBox],
-           stateContext: ErgoLikeStateContext): Try[ErgoLikeTransactionTemplate[Input]] = {
+           stateContext: ErgoLikeStateContext): Try[ErgoLikeTransaction] = {
     if (unsignedTx.inputs.length != boxesToSpend.length) Failure(new Exception("Not enough boxes to spend"))
     else if (unsignedTx.dataInputs.length != dataBoxes.length) Failure(new Exception("Not enough data boxes"))
     else boxesToSpend
@@ -43,7 +43,19 @@ class ErgoProvingInterpreter(val secrets: IndexedSeq[DLogProverInput], params: E
         val transactionContext = TransactionContext(boxesToSpend, dataBoxes, unsignedTx, boxIdx.toShort)
 
         inputsCostTry.flatMap { case (ins, totalCost) =>
-          val context = new ErgoContext(stateContext, transactionContext, ContextExtension.empty)
+
+          val context = new ErgoLikeContext(
+            stateContext.currentHeight,
+            ErgoInterpreter.stateTreeFromDigest(stateContext.previousStateDigest),
+            stateContext.lastBlockMinerPk,
+            stateContext.sigmaLastHeaders,
+            stateContext.sigmaPreHeader,
+            transactionContext.dataBoxes,
+            transactionContext.boxesToSpend,
+            transactionContext.spendingTransaction,
+            transactionContext.self,
+            ContextExtension.empty
+          )
 
           prove(inputBox.ergoTree, context, unsignedTx.messageToSign).flatMap { proverResult =>
             val newTC = totalCost + proverResult.cost
