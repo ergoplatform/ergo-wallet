@@ -3,8 +3,16 @@ package org.ergoplatform.wallet.protocol.context
 import scorex.crypto.authds.ADDigest
 import special.collection.Coll
 
-case class ErgoLikeStateContext(currentHeight: Int,
-                                previousStateDigest: ADDigest,
-                                lastBlockMinerPk: Array[Byte],
-                                sigmaLastHeaders: Coll[special.sigma.Header],
-                                sigmaPreHeader: special.sigma.PreHeader)
+trait ErgoLikeStateContext {
+
+  def currentHeight: Int
+
+  def previousStateDigest: ADDigest
+
+  def lastBlockMinerPk: Array[Byte]
+
+  def sigmaLastHeaders: Coll[special.sigma.Header]
+
+  def sigmaPreHeader: special.sigma.PreHeader
+
+}
