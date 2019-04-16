@@ -12,7 +12,7 @@ trait SecretStorage {
 
   def isLocked: Boolean
 
-  def secrets: Map[Int, SecureSecret]
+  def secrets: Map[Int, ExtendedPublicKey]
 
   def unlock(secretsIndices: IndexedSeq[Int], pass: String): Try[Unit]
 

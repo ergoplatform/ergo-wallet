@@ -21,11 +21,11 @@ import scala.util.Try
 final class JsonSecretStorage(val secretFile: File, encryptionSettings: EncryptionSettings)
   extends SecretStorage {
 
-  private var unlockedSecrets: Map[Int, SecureSecret] = Map.empty
+  private var unlockedSecrets: Map[Int, ExtendedPublicKey] = Map.empty
 
   override def isLocked: Boolean = unlockedSecrets.isEmpty
 
-  override def secrets: Map[Int, SecureSecret] = unlockedSecrets
+  override def secrets: Map[Int, ExtendedPublicKey] = unlockedSecrets
 
   /**
     * Makes secrets with `secretsIndices` available through `secrets` call.
@@ -52,7 +52,7 @@ final class JsonSecretStorage(val secretFile: File, encryptionSettings: Encrypti
       .flatten
       .map { seed =>
         secretsIndices.foreach { idx =>
-          unlockedSecrets += idx -> new SecureSecret(secretFromSeed(idx, seed))
+          unlockedSecrets += idx -> new ExtendedPublicKey(secretFromSeed(idx, seed))
         }
       }
   }
