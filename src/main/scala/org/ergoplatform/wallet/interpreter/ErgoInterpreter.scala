@@ -2,11 +2,13 @@ package org.ergoplatform.wallet.interpreter
 
 import org.ergoplatform.ErgoLikeContext.Height
 import org.ergoplatform.wallet.protocol.Constants
-import org.ergoplatform.wallet.protocol.context.{ErgoContext, ErgoLikeParameters}
-import org.ergoplatform.{ErgoBox, ErgoBoxCandidate, ErgoLikeInterpreter}
+import org.ergoplatform.wallet.protocol.context.ErgoLikeParameters
+import org.ergoplatform.{ErgoBox, ErgoBoxCandidate, ErgoLikeContext, ErgoLikeInterpreter}
+import scorex.crypto.authds.ADDigest
 import sigmastate.Values.ErgoTree
 import sigmastate.eval.{IRContext, RuntimeIRContext}
 import sigmastate.interpreter.Interpreter.{ScriptEnv, VerificationResult}
+import sigmastate.{AvlTreeData, AvlTreeFlags}
 
 import scala.util.Try
 
@@ -19,13 +21,13 @@ import scala.util.Try
 class ErgoInterpreter(params: ErgoLikeParameters)(implicit IR: IRContext)
   extends ErgoLikeInterpreter(params.maxBlockCost) {
 
-  override type CTX = ErgoContext
+  override type CTX = ErgoLikeContext
 
   /**
     * Check that expired box is spent in a proper way
     *
-    * @param box    - box being spent
-    * @param output - newly created box
+    * @param box           - box being spent
+    * @param output        - newly created box
     * @param currentHeight - current height of the blockchain (at the moment of spending)
     * @return whether the box is spent properly according to the storage fee rule
     */
@@ -41,6 +43,15 @@ class ErgoInterpreter(params: ErgoLikeParameters)(implicit IR: IRContext)
     storageFeeCovered || (correctCreationHeight && correctOutValue && correctRegisters)
   }
 
+  /**
+    * Checks that given exp evaluates to `true`.
+    *
+    * @param env     - environment to use during expression evaluation
+    * @param exp     - expression to check
+    * @param context - expression evaluation context
+    * @param proof   - cryptographic proof
+    * @param message - message
+    */
   override def verify(env: ScriptEnv,
                       exp: ErgoTree,
                       context: CTX,
@@ -69,4 +80,10 @@ object ErgoInterpreter {
 
   def apply(params: ErgoLikeParameters): ErgoInterpreter =
     new ErgoInterpreter(params)(new RuntimeIRContext)
+
+  def stateTreeFromDigest(digest: ADDigest): AvlTreeData = {
+    val flags = AvlTreeFlags(insertAllowed = true, updateAllowed = true, removeAllowed = true)
+    AvlTreeData(digest, flags, Constants.HashLength)
+  }
+
 }
