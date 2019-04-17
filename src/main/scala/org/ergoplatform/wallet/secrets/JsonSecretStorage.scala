@@ -1,6 +1,7 @@
 package org.ergoplatform.wallet.secrets
 
 import java.io.{File, PrintWriter}
+import java.util
 import java.util.UUID
 
 import io.circe.generic.auto._
@@ -39,13 +40,13 @@ final class JsonSecretStorage(val secretFile: File, encryptionSettings: Encrypti
         Base16.decode(encryptedSecret.cipherText)
           .flatMap(txt => Base16.decode(encryptedSecret.salt)
             .flatMap(salt => Base16.decode(encryptedSecret.iv)
-              .flatMap(iv => Base16.decode(encryptedSecret.mac)
+              .flatMap(iv => Base16.decode(encryptedSecret.authTag)
                 .map((txt, salt, iv, _))
               )
             )
           )
-          .flatMap { case (cipherText, salt, iv, mac) =>
-            crypto.AES.decrypt(cipherText, pass, salt, iv, mac)(encryptionSettings)
+          .flatMap { case (cipherText, salt, iv, tag) =>
+            crypto.AES.decrypt(cipherText, pass, salt, iv, tag)(encryptionSettings)
           }
       }
       .toTry
@@ -73,11 +74,11 @@ object JsonSecretStorage {
     * Initializes storage instance with new wallet file encrypted with the given `pass`.
     */
   def init(seed: Array[Byte], pass: String)(settings: WalletSettings): JsonSecretStorage = {
-    val iv = scorex.utils.Random.randomBytes(16)
+    val iv = scorex.utils.Random.randomBytes(crypto.AES.NonceBitsLen / 8)
     val salt = scorex.utils.Random.randomBytes(32)
-    val (text, mac) = crypto.AES.encrypt(seed, pass, salt, iv)(settings.encryption)
-    val encryptedSecret = EncryptedSecret(text, salt, iv, mac, settings.encryption)
-    val uuid = UUID.nameUUIDFromBytes(text)
+    val (ciphertext, tag) = crypto.AES.encrypt(seed, pass, salt, iv)(settings.encryption)
+    val encryptedSecret = EncryptedSecret(ciphertext, salt, iv, tag, settings.encryption)
+    val uuid = UUID.nameUUIDFromBytes(ciphertext)
     new File(settings.secretDir).mkdirs()
     val file = new File(s"${settings.secretDir}/$uuid.json")
     val outWriter = new PrintWriter(file)
@@ -85,6 +86,8 @@ object JsonSecretStorage {
 
     outWriter.write(jsonRaw)
     outWriter.close()
+
+    util.Arrays.fill(seed, 0: Byte)
 
     new JsonSecretStorage(file, settings.encryption)
   }
