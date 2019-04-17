@@ -1,5 +1,7 @@
 package org.ergoplatform.wallet.secrets
 
+import java.util
+
 import org.bouncycastle.util.BigIntegers
 import org.ergoplatform.wallet.crypto.HmacSHA512
 import org.ergoplatform.wallet.settings.Constants
@@ -11,9 +13,7 @@ import sigmastate.basics.DLogProtocol.DLogProverInput
 final class ExtendedSecret(val secretBytes: Array[Byte], chainCode: Array[Byte]) {
   def secret: DLogProverInput = DLogProverInput(BigIntegers.fromUnsignedByteArray(secretBytes))
   def isErased: Boolean = secretBytes.forall(_ == 0x0)
-  def zeroSecret(): Unit = secretBytes.zipWithIndex.foreach { case (_, idx) =>
-    secretBytes(idx) = 0x0
-  }
+  def zeroSecret(): Unit = util.Arrays.fill(secretBytes, 0: Byte)
 }
 
 object ExtendedSecret {
