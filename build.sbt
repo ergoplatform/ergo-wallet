@@ -11,7 +11,7 @@ val circeVersion = "0.10.0"
 
 libraryDependencies ++= Seq(
   "org.scorexfoundation" %% "sigma-state" % sigmaStateVersion,
-  "org.scodec" %% "scodec-core" % "1.10.3",
+  "org.scodec" %% "scodec-bits" % "1.1.6",
 
   "io.circe" %% "circe-core" % circeVersion,
   "io.circe" %% "circe-generic" % circeVersion,
