@@ -16,7 +16,7 @@ final class ExtendedSecretKey(val keyBytes: Array[Byte], val chainCode: Array[By
 
   def key: DLogProverInput = DLogProverInput(BigIntegers.fromUnsignedByteArray(keyBytes))
 
-  def child(idx: Long): ExtendedSecretKey = ExtendedSecretKey.deriveChildSecretKey(this, idx)
+  def child(idx: Int): ExtendedSecretKey = ExtendedSecretKey.deriveChildSecretKey(this, idx)
 
   def derive(upPath: DerivationPath): ExtendedSecretKey = {
     require(
@@ -34,15 +34,12 @@ final class ExtendedSecretKey(val keyBytes: Array[Byte], val chainCode: Array[By
 
 object ExtendedSecretKey {
 
-  import Serialization._
-
-  def deriveChildSecretKey(parentKey: ExtendedSecretKey, idx: Long): ExtendedSecretKey = {
-    val isHardened = idx >= DerivationPath.HardenedIndexRangeStart
+  def deriveChildSecretKey(parentKey: ExtendedSecretKey, idx: Int): ExtendedSecretKey = {
     val keyCoded: Array[Byte] =
-      if (isHardened) (0x00: Byte) +: parentKey.keyBytes
+      if (Index.isHardened(idx)) (0x00: Byte) +: parentKey.keyBytes
       else parentKey.key.publicImage.value.getEncoded(true)
     val (childKeyProto, childChainCode) =
-      HmacSHA512.hash(parentKey.chainCode, keyCoded ++ ser32(idx)).splitAt(Constants.KeyLen)
+      HmacSHA512.hash(parentKey.chainCode, keyCoded ++ Index.serializeIndex(idx)).splitAt(Constants.KeyLen)
     val childKeyProtoDecoded = BigIntegers.fromUnsignedByteArray(childKeyProto)
     val nextKey =
       childKeyProtoDecoded.add(BigIntegers.fromUnsignedByteArray(parentKey.keyBytes).mod(CryptoConstants.groupOrder))

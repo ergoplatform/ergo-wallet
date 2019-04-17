@@ -5,7 +5,7 @@ import scala.util.{Failure, Try}
 /**
   * HD key derivation path (see: https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki)
   */
-final case class DerivationPath(decodedPath: List[Long], publicBranch: Boolean) {
+final case class DerivationPath(decodedPath: List[Int], publicBranch: Boolean) {
 
   import DerivationPath._
 
@@ -17,10 +17,10 @@ final case class DerivationPath(decodedPath: List[Long], publicBranch: Boolean) 
 
   def encoded: String =
     (if (publicBranch) s"$PublicBranchMasterId/" else s"$PrivateBranchMasterId/") + decodedPath.tail
-      .map(x => if (x >= HardenedIndexRangeStart) s"${x - HardenedIndexRangeStart}'" else x.toString)
+      .map(x => if (Index.isHardened(x)) s"${x - Index.HardRangeStart}'" else x.toString)
       .mkString("/")
 
-  def extended(idx: Long): DerivationPath = DerivationPath(decodedPath :+ idx, publicBranch)
+  def extended(idx: Int): DerivationPath = DerivationPath(decodedPath :+ idx, publicBranch)
 
   override def toString: String = encoded
 }
@@ -30,9 +30,6 @@ object DerivationPath {
   val PublicBranchMasterId = "M"
   val PrivateBranchMasterId = "m"
 
-  val HardenedIndexRangeStart = 2147483648L // 2^31
-  val HardenedIndexRangeEnd = 4294967295L // 2^32 - 1
-
   def masterPath: DerivationPath = DerivationPath(List(0), publicBranch = false)
 
   def fromEncoded(path: String): Try[DerivationPath] = {
@@ -40,15 +37,14 @@ object DerivationPath {
     if (!split.headOption.exists(Seq(PublicBranchMasterId, PrivateBranchMasterId).contains)) {
       Failure(new Exception("Wrong path format"))
     } else {
-      val pathTry = split.tail.foldLeft(Try(List(0L))) { case (accTry, sym) =>
+      val pathTry = split.tail.foldLeft(Try(List(0))) { case (accTry, sym) =>
         accTry.flatMap { acc =>
-          Try(if (sym.endsWith("'")) HardenedIndexRangeStart + sym.dropRight(1).toLong else sym.toLong)
+          Try(if (sym.endsWith("'")) Index.hardIndex(sym.dropRight(1).toInt) else sym.toInt)
             .map(acc :+ _)
         }
       }
       val isPublicBranch = split.head == PublicBranchMasterId
-      if (path.forall(x => x >= 0 && x <= HardenedIndexRangeEnd)) pathTry.map(DerivationPath(_, isPublicBranch))
-      else Failure(new Exception("Unbound index in path"))
+      pathTry.map(DerivationPath(_, isPublicBranch))
     }
   }
 
