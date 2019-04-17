@@ -22,18 +22,17 @@ import scala.util.Try
 final class JsonSecretStorage(val secretFile: File, encryptionSettings: EncryptionSettings)
   extends SecretStorage {
 
-  private var unlockedSecrets: Map[Int, ExtendedSecret] = Map.empty
+  private var unlockedSecret: Option[ExtendedSecretKey] = None
 
-  override def isLocked: Boolean = unlockedSecrets.isEmpty
+  override def isLocked: Boolean = unlockedSecret.isEmpty
 
-  override def secrets: Map[Int, ExtendedSecret] = unlockedSecrets
+  override def secret: Option[ExtendedSecretKey] = unlockedSecret
 
   /**
     * Makes secrets with `secretsIndices` available through `secrets` call.
-    * @param secretsIndices - indexes of secrets to unlock
-    * @param pass           - password to be used to decrypt secret
+    * @param pass - password to be used to decrypt secret
     */
-  override def unlock(secretsIndices: IndexedSeq[Int], pass: String): Try[Unit] = {
+  override def unlock(pass: String): Try[Unit] = {
     val secretFileRaw = scala.io.Source.fromFile(secretFile, "UTF-8").getLines().mkString
     decode[EncryptedSecret](secretFileRaw)
       .map { encryptedSecret =>
@@ -51,17 +50,15 @@ final class JsonSecretStorage(val secretFile: File, encryptionSettings: Encrypti
       }
       .toTry
       .flatten
-      .map { seed =>
-        unlockedSecrets += 0 -> ExtendedSecret.fromSeed(seed)
-      }
+      .map(seed => unlockedSecret = Some(ExtendedSecretKey.fromSeed(seed)))
   }
 
   /**
     * Destroys all loaded secrets.
     */
   override def lock(): Unit = {
-    unlockedSecrets.values.foreach(_.zeroSecret())
-    unlockedSecrets = Map.empty
+    unlockedSecret.foreach(_.zeroSecret())
+    unlockedSecret = None
   }
 
 }

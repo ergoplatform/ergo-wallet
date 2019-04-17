@@ -1,6 +1,7 @@
 package org.ergoplatform.wallet.utils
 
 import org.ergoplatform.wallet.mnemonic.{Mnemonic, WordList}
+import org.ergoplatform.wallet.secrets.DerivationPath
 import org.ergoplatform.wallet.settings.EncryptionSettings
 import org.scalacheck.Gen
 
@@ -20,5 +21,14 @@ trait Generators {
   } yield new Mnemonic(lang, strength)
 
   val entropyGen: Gen[Array[Byte]] = Gen.oneOf(Mnemonic.AllowedEntropyLengths).map(scorex.utils.Random.randomBytes)
+
+  val derivationPathGen: Gen[DerivationPath] = for {
+    isPublic <- Gen.oneOf(Seq(true, false))
+    isHardened <- Gen.oneOf(Seq(true, false))
+    indices <- Gen.listOf(
+      if (isHardened) Gen.choose(DerivationPath.HardenedIndexRangeStart, DerivationPath.HardenedIndexRangeEnd)
+      else Gen.posNum[Long]
+    )
+  } yield DerivationPath(0L +: indices, isPublic)
 
 }

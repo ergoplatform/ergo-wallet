@@ -20,7 +20,7 @@ class JsonSecretStorageSpec
 
       storage.isLocked shouldBe true
 
-      val unlockTry = storage.unlock(IndexedSeq(1, 2, 3), pass)
+      val unlockTry = storage.unlock(pass)
 
       unlockTry shouldBe 'success
 
@@ -34,17 +34,17 @@ class JsonSecretStorageSpec
       val settings = WalletSettings(dir.getAbsolutePath, cryptoSettings)
       val storage = JsonSecretStorage.init(seed, pass)(settings)
 
-      storage.unlock(IndexedSeq(1, 2, 3), pass)
+      storage.unlock(pass)
 
-      val secrets = storage.secrets.values
+      val secret = storage.secret
 
-      secrets.nonEmpty shouldBe true
+      secret.nonEmpty shouldBe true
 
       storage.lock()
 
-      secrets.forall(_.isErased) shouldBe true
+      secret.forall(_.isErased) shouldBe true
 
-      storage.secrets.isEmpty shouldBe true
+      storage.secret.isEmpty shouldBe true
     }
   }
 
