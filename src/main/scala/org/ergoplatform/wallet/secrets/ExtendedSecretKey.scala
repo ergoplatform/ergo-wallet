@@ -41,8 +41,9 @@ object ExtendedSecretKey {
     val (childKeyProto, childChainCode) =
       HmacSHA512.hash(parentKey.chainCode, keyCoded ++ Index.serializeIndex(idx)).splitAt(Constants.KeyLen)
     val childKeyProtoDecoded = BigIntegers.fromUnsignedByteArray(childKeyProto)
-    val nextKey =
-      childKeyProtoDecoded.add(BigIntegers.fromUnsignedByteArray(parentKey.keyBytes).mod(CryptoConstants.groupOrder))
+    val nextKey = childKeyProtoDecoded
+      .add(BigIntegers.fromUnsignedByteArray(parentKey.keyBytes))
+      .mod(CryptoConstants.groupOrder)
     if (childKeyProtoDecoded.compareTo(CryptoConstants.groupOrder) >= 0 || nextKey.equals(BigInteger.ZERO))
       deriveChildSecretKey(parentKey, idx + 1)
     else
