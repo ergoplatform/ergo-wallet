@@ -50,7 +50,7 @@ final class JsonSecretStorage(val secretFile: File, encryptionSettings: Encrypti
       }
       .toTry
       .flatten
-      .map(seed => unlockedSecret = Some(ExtendedSecretKey.fromSeed(seed)))
+      .map(seed => unlockedSecret = Some(ExtendedSecretKey.deriveMasterKey(seed)))
   }
 
   /**

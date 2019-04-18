@@ -30,7 +30,7 @@ object DerivationPath {
   val PublicBranchMasterId = "M"
   val PrivateBranchMasterId = "m"
 
-  def masterPath: DerivationPath = DerivationPath(List(0), publicBranch = false)
+  val MasterPath: DerivationPath = DerivationPath(List(0), publicBranch = false)
 
   def fromEncoded(path: String): Try[DerivationPath] = {
     val split = path.split("/")

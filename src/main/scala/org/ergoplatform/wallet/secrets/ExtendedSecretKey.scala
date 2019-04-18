@@ -10,22 +10,17 @@ import sigmastate.basics.DLogProtocol.DLogProverInput
 import sigmastate.interpreter.CryptoConstants
 
 /**
-  * Wraps the secret and its chain code (see: https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki).
+  * Secret, its chain code and path in key tree.
+  * (see: https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki)
   */
-final class ExtendedSecretKey(val keyBytes: Array[Byte], val chainCode: Array[Byte], val path: DerivationPath) {
+final class ExtendedSecretKey(val keyBytes: Array[Byte],
+                              val chainCode: Array[Byte],
+                              val path: DerivationPath)
+  extends ExtendedKey {
 
   def key: DLogProverInput = DLogProverInput(BigIntegers.fromUnsignedByteArray(keyBytes))
 
   def child(idx: Int): ExtendedSecretKey = ExtendedSecretKey.deriveChildSecretKey(this, idx)
-
-  def derive(upPath: DerivationPath): ExtendedSecretKey = {
-    require(
-      upPath.decodedPath.take(path.depth).zip(path.decodedPath).forall { case (x1, x2) => x1 == x2 }
-        && upPath.publicBranch == path.publicBranch,
-      s"Incompatible paths: $upPath, $path"
-    )
-    upPath.decodedPath.drop(path.depth).foldLeft(this)(_ child _)
-  }
 
   def isErased: Boolean = keyBytes.forall(_ == 0x0)
 
@@ -38,21 +33,22 @@ object ExtendedSecretKey {
     val keyCoded: Array[Byte] =
       if (Index.isHardened(idx)) (0x00: Byte) +: parentKey.keyBytes
       else parentKey.key.publicImage.value.getEncoded(true)
-    val (childKeyProto, childChainCode) =
-      HmacSHA512.hash(parentKey.chainCode, keyCoded ++ Index.serializeIndex(idx)).splitAt(Constants.KeyLen)
+    val (childKeyProto, childChainCode) = HmacSHA512
+      .hash(parentKey.chainCode, keyCoded ++ Index.serializeIndex(idx))
+      .splitAt(Constants.KeyLen)
     val childKeyProtoDecoded = BigIntegers.fromUnsignedByteArray(childKeyProto)
-    val nextKey = childKeyProtoDecoded
+    val childKey = childKeyProtoDecoded
       .add(BigIntegers.fromUnsignedByteArray(parentKey.keyBytes))
       .mod(CryptoConstants.groupOrder)
-    if (childKeyProtoDecoded.compareTo(CryptoConstants.groupOrder) >= 0 || nextKey.equals(BigInteger.ZERO))
+    if (childKeyProtoDecoded.compareTo(CryptoConstants.groupOrder) >= 0 || childKey.equals(BigInteger.ZERO))
       deriveChildSecretKey(parentKey, idx + 1)
     else
-      new ExtendedSecretKey(BigIntegers.asUnsignedByteArray(nextKey), childChainCode, parentKey.path.extended(idx))
+      new ExtendedSecretKey(BigIntegers.asUnsignedByteArray(childKey), childChainCode, parentKey.path.extended(idx))
   }
 
-  def fromSeed(seed: Array[Byte]): ExtendedSecretKey = {
+  def deriveMasterKey(seed: Array[Byte]): ExtendedSecretKey = {
     val (masterKey, chainCode) = HmacSHA512.hash(Constants.BitcoinSeed, seed).splitAt(Constants.KeyLen)
-    new ExtendedSecretKey(masterKey, chainCode, DerivationPath.masterPath)
+    new ExtendedSecretKey(masterKey, chainCode, DerivationPath.MasterPath)
   }
 
 }

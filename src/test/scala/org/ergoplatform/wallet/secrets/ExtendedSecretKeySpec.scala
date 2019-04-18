@@ -13,7 +13,7 @@ class ExtendedSecretKeySpec
   val seedStr = "edge talent poet tortoise trumpet dose"
   val seed: Array[Byte] = Mnemonic.toSeed(seedStr)
 
-  property("key chain derivation from seed (test vectors from BIP32 check)") {
+  property("key tree derivation from seed (test vectors from BIP32 check)") {
     val expectedRoot = "4rEDKLd17LX4xNR8ss4ithdqFRc3iFnTiTtQbanWJbCT"
     val cases = Seq(
       ("CLdMMHxNtiPzDnWrVuZQr22VyUx8deUG7vMqMNW7as7M", 1),
@@ -21,7 +21,7 @@ class ExtendedSecretKeySpec
       ("DWMp3L9JZiywxSb5gSjc5dYxPwEZ6KkmasNiHD6VRcpJ", Index.hardIndex(2))
     )
 
-    val root = ExtendedSecretKey.fromSeed(seed)
+    val root = ExtendedSecretKey.deriveMasterKey(seed)
 
     equalBase58(root.keyBytes, expectedRoot)
 
@@ -39,7 +39,7 @@ class ExtendedSecretKeySpec
       ("DWMp3L9JZiywxSb5gSjc5dYxPwEZ6KkmasNiHD6VRcpJ", "m/1/2/2'")
     )
 
-    val root = ExtendedSecretKey.fromSeed(seed)
+    val root = ExtendedSecretKey.deriveMasterKey(seed)
 
     cases.foreach { case (expectedKey, path) =>
       val derived = root.derive(DerivationPath.fromEncoded(path).get)
