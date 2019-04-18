@@ -28,23 +28,6 @@ final class Mnemonic(languageId: String, strength: Int) {
   }
 
   /**
-    * Converts mnemonic phrase to seed it was derived from.
-    */
-  def toSeed(mnemonic: String, pass: Option[String] = None): Array[Byte] = {
-    val normalizedMnemonic = normalize(mnemonic.toCharArray, NFKD).toCharArray
-    val normalizedSeed = normalize(s"mnemonic${pass.getOrElse("")}", NFKD)
-
-    val spec = new PBEKeySpec(
-      normalizedMnemonic,
-      normalizedSeed.getBytes,
-      Pbkdf2Iterations,
-      Pbkdf2KeyLength
-    )
-    val skf = SecretKeyFactory.getInstance(Pbkdf2Algorithm)
-    skf.generateSecret(spec).getEncoded
-  }
-
-  /**
     * Generates new mnemonic phrase from a given entropy.
     */
   def toMnemonic(entropy: Array[Byte]): Try[String] = {
@@ -68,6 +51,7 @@ final class Mnemonic(languageId: String, strength: Int) {
 }
 
 object Mnemonic {
+
   val MnemonicSentenceSizes: Seq[Int] = Seq(12, 15, 18, 21, 24)
   val AllowedStrengths: Seq[Int] = Seq(128, 160, 192, 224, 256)
   val AllowedEntropyLengths: Seq[Int] = AllowedStrengths.map(_ / 8)
@@ -75,4 +59,22 @@ object Mnemonic {
   val Pbkdf2Algorithm = "PBKDF2WithHmacSHA512"
   val Pbkdf2Iterations = 2048 // number of iteration specified in BIP39 standard.
   val Pbkdf2KeyLength = 512
+
+  /**
+    * Converts mnemonic phrase to seed it was derived from.
+    */
+  def toSeed(mnemonic: String, pass: Option[String] = None): Array[Byte] = {
+    val normalizedMnemonic = normalize(mnemonic.toCharArray, NFKD).toCharArray
+    val normalizedSeed = normalize(s"mnemonic${pass.getOrElse("")}", NFKD)
+
+    val spec = new PBEKeySpec(
+      normalizedMnemonic,
+      normalizedSeed.getBytes,
+      Pbkdf2Iterations,
+      Pbkdf2KeyLength
+    )
+    val skf = SecretKeyFactory.getInstance(Pbkdf2Algorithm)
+    skf.generateSecret(spec).getEncoded
+  }
+
 }

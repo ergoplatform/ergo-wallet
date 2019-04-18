@@ -1,27 +1,52 @@
 package org.ergoplatform.wallet.secrets
 
+import org.ergoplatform.wallet.mnemonic.Mnemonic
+import org.scalatest.prop.TableDrivenPropertyChecks
 import org.scalatest.{Matchers, PropSpec}
 import scorex.util.encode.Base58
 
-class ExtendedSecretKeySpec extends PropSpec with Matchers {
+class ExtendedSecretKeySpec
+  extends PropSpec
+    with Matchers
+    with TableDrivenPropertyChecks {
 
-  property("master key derivation from seed") {
+  val seedStr = "edge talent poet tortoise trumpet dose"
+  val seed: Array[Byte] = Mnemonic.toSeed(seedStr)
+
+  property("key chain derivation from seed (test vectors from BIP32 check)") {
     val expectedRoot = "4rEDKLd17LX4xNR8ss4ithdqFRc3iFnTiTtQbanWJbCT"
-    val expectedKey11 = "CLdMMHxNtiPzDnWrVuZQr22VyUx8deUG7vMqMNW7as7M"
-    val expectedKey22 = "9icjp3TuTpRaTn6JK6AHw2nVJQaUnwmkXVdBdQSS98xD"
-    val expectedKey3Hard2 = "DWMp3L9JZiywxSb5gSjc5dYxPwEZ6KkmasNiHD6VRcpJ"
-    val seedStr = "5KgzUvF4yZjBDkoseNyZnAHsA6cuqhvwkGUNZ4y2WQXfRhLoHfbipZR4XriVZKbVFMcP6QKLRwLZhJdRt2wKx6tY"
-    val seed = Base58.decode(seedStr).get
+    val cases = Seq(
+      ("CLdMMHxNtiPzDnWrVuZQr22VyUx8deUG7vMqMNW7as7M", 1),
+      ("9icjp3TuTpRaTn6JK6AHw2nVJQaUnwmkXVdBdQSS98xD", 2),
+      ("DWMp3L9JZiywxSb5gSjc5dYxPwEZ6KkmasNiHD6VRcpJ", Index.hardIndex(2))
+    )
 
     val root = ExtendedSecretKey.fromSeed(seed)
-    val k11 = root.child(1)
-    val k22 = k11.child(2)
-    val k3h2 = k22.child(Index.hardIndex(2))
 
-    Base58.encode(root.keyBytes) shouldEqual expectedRoot
-    Base58.encode(k11.keyBytes) shouldEqual expectedKey11
-    Base58.encode(k22.keyBytes) shouldEqual expectedKey22
-    Base58.encode(k3h2.keyBytes) shouldEqual expectedKey3Hard2
+    equalBase58(root.keyBytes, expectedRoot)
+
+    cases.foldLeft(root) { case (parent, (expectedKey, idx)) =>
+      val child = parent.child(idx)
+      equalBase58(child.keyBytes, expectedKey)
+      child
+    }
   }
+
+  property("path derivation (test vectors from BIP32 check)") {
+    val cases = Seq(
+      ("CLdMMHxNtiPzDnWrVuZQr22VyUx8deUG7vMqMNW7as7M", "m/1"),
+      ("9icjp3TuTpRaTn6JK6AHw2nVJQaUnwmkXVdBdQSS98xD", "m/1/2"),
+      ("DWMp3L9JZiywxSb5gSjc5dYxPwEZ6KkmasNiHD6VRcpJ", "m/1/2/2'")
+    )
+
+    val root = ExtendedSecretKey.fromSeed(seed)
+
+    cases.foreach { case (expectedKey, path) =>
+      val derived = root.derive(DerivationPath.fromEncoded(path).get)
+      equalBase58(derived.keyBytes, expectedKey)
+    }
+  }
+
+  private def equalBase58(v1: Array[Byte], v2b58: String) = Base58.encode(v1) shouldEqual v2b58
 
 }
