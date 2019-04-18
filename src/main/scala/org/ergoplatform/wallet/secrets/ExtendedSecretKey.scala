@@ -46,6 +46,13 @@ object ExtendedSecretKey {
       new ExtendedSecretKey(BigIntegers.asUnsignedByteArray(childKey), childChainCode, parentKey.path.extended(idx))
   }
 
+  def deriveChildPublicKey(parentKey: ExtendedSecretKey, idx: Int): ExtendedPublicKey = {
+    val derivedSecret = deriveChildSecretKey(parentKey, idx)
+    val derivedPk = derivedSecret.key.publicImage.value.getEncoded(true)
+    val derivedPath = derivedSecret.path.copy(publicBranch = true)
+    new ExtendedPublicKey(derivedPk, derivedSecret.chainCode, derivedPath, isNeutered = true)
+  }
+
   def deriveMasterKey(seed: Array[Byte]): ExtendedSecretKey = {
     val (masterKey, chainCode) = HmacSHA512.hash(Constants.BitcoinSeed, seed).splitAt(Constants.KeyLen)
     new ExtendedSecretKey(masterKey, chainCode, DerivationPath.MasterPath)
