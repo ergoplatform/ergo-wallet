@@ -25,7 +25,7 @@ final class ExtendedSecretKey(val keyBytes: Array[Byte],
   def publicKey: ExtendedPublicKey =
     new ExtendedPublicKey(key.publicImage.value.getEncoded(true), chainCode, path.toPublic)
 
-  def isErased: Boolean = keyBytes.forall(_ == 0x0)
+  def isErased: Boolean = keyBytes.forall(_ == 0x00)
 
   def zeroSecret(): Unit = util.Arrays.fill(keyBytes, 0: Byte)
 }
