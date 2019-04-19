@@ -22,6 +22,9 @@ final class ExtendedSecretKey(val keyBytes: Array[Byte],
 
   def child(idx: Int): ExtendedSecretKey = ExtendedSecretKey.deriveChildSecretKey(this, idx)
 
+  def publicKey: ExtendedPublicKey =
+    new ExtendedPublicKey(key.publicImage.value.getEncoded(true), chainCode, path.toPublic)
+
   def isErased: Boolean = keyBytes.forall(_ == 0x0)
 
   def zeroSecret(): Unit = util.Arrays.fill(keyBytes, 0: Byte)
@@ -50,7 +53,7 @@ object ExtendedSecretKey {
     val derivedSecret = deriveChildSecretKey(parentKey, idx)
     val derivedPk = derivedSecret.key.publicImage.value.getEncoded(true)
     val derivedPath = derivedSecret.path.copy(publicBranch = true)
-    new ExtendedPublicKey(derivedPk, derivedSecret.chainCode, derivedPath, isNeutered = true)
+    new ExtendedPublicKey(derivedPk, derivedSecret.chainCode, derivedPath)
   }
 
   def deriveMasterKey(seed: Array[Byte]): ExtendedSecretKey = {

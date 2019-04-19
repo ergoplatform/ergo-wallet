@@ -2,7 +2,7 @@ package org.ergoplatform.wallet.secrets
 
 import org.ergoplatform.wallet.mnemonic.Mnemonic
 import org.scalatest.prop.TableDrivenPropertyChecks
-import org.scalatest.{Matchers, PropSpec}
+import org.scalatest.{Assertion, Matchers, PropSpec}
 import scorex.util.encode.Base58
 
 class ExtendedSecretKeySpec
@@ -47,6 +47,6 @@ class ExtendedSecretKeySpec
     }
   }
 
-  private def equalBase58(v1: Array[Byte], v2b58: String) = Base58.encode(v1) shouldEqual v2b58
+  def equalBase58(v1: Array[Byte], v2b58: String): Assertion = Base58.encode(v1) shouldEqual v2b58
 
 }

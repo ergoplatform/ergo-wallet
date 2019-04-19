@@ -7,16 +7,15 @@ import sigmastate.basics.DLogProtocol.{DLogProverInput, ProveDlog}
 import sigmastate.interpreter.CryptoConstants
 
 /**
-  * Secret, its chain code and path in key tree.
+  * Public key, its chain code and path in key tree.
   * (see: https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki)
   */
 final class ExtendedPublicKey(val keyBytes: Array[Byte],
                               val chainCode: Array[Byte],
-                              val path: DerivationPath,
-                              val isNeutered: Boolean = false)
+                              val path: DerivationPath)
   extends ExtendedKey {
 
-  def decodedUnsafe: ProveDlog = ProveDlog(
+  def key: ProveDlog = ProveDlog(
     CryptoConstants.dlogGroup.curve.decodePoint(keyBytes).asInstanceOf[CryptoConstants.EcPointType]
   )
 
@@ -31,7 +30,7 @@ object ExtendedPublicKey {
       .hash(parentKey.chainCode, parentKey.keyBytes ++ Index.serializeIndex(idx))
       .splitAt(Constants.KeyLen)
     val childKeyProtoDecoded = BigIntegers.fromUnsignedByteArray(childKeyProto)
-    val childKey = DLogProverInput(childKeyProtoDecoded).publicImage.value.add(parentKey.decodedUnsafe.value)
+    val childKey = DLogProverInput(childKeyProtoDecoded).publicImage.value.add(parentKey.key.value)
     if (childKeyProtoDecoded.compareTo(CryptoConstants.groupOrder) >= 0 || childKey.isInfinity)
       deriveChildPublicKey(parentKey, idx + 1)
     else

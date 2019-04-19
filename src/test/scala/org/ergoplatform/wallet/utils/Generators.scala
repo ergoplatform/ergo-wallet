@@ -28,4 +28,9 @@ trait Generators {
       .flatMap(x => Gen.posNum[Int].map(i => if (x) Index.hardIndex(i) else i)))
   } yield DerivationPath(0 +: indices, isPublic)
 
+  def derivationPathGen(isPublic: Boolean, allowHardened: Boolean): Gen[DerivationPath] = for {
+    indices <- Gen.listOf(Gen.oneOf(Seq(true, false))
+      .flatMap(x => Gen.posNum[Int].map(i => if (x && allowHardened) Index.hardIndex(i) else i)))
+  } yield DerivationPath(0 +: indices, isPublic)
+
 }

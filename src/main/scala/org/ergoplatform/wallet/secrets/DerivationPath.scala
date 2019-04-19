@@ -22,6 +22,8 @@ final case class DerivationPath(decodedPath: List[Int], publicBranch: Boolean) {
 
   def extended(idx: Int): DerivationPath = DerivationPath(decodedPath :+ idx, publicBranch)
 
+  def toPublic: DerivationPath = this.copy(publicBranch = true)
+
   override def toString: String = encoded
 }
 
