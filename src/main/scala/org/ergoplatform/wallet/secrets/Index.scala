@@ -1,5 +1,7 @@
 package org.ergoplatform.wallet.secrets
 
+import scodec.bits.ByteVector
+
 object Index {
 
   val HardRangeStart = 0x80000000
@@ -8,11 +10,8 @@ object Index {
 
   def isHardened(i: Int): Boolean = (i & HardRangeStart) != 0
 
-  def serializeIndex(i: Int): Array[Byte] = Array(
-    (i >> 24).toByte,
-    (i >> 16).toByte,
-    (i >> 8).toByte,
-    i.toByte
-  )
+  def serializeIndex(i: Int): Array[Byte] = ByteVector.fromInt(i).toArray
+
+  def parseIndex(xs: Array[Byte]): Int = ByteVector(xs).toInt(signed = false)
 
 }

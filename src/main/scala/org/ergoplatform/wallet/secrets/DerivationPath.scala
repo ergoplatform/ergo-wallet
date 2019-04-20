@@ -1,5 +1,8 @@
 package org.ergoplatform.wallet.secrets
 
+import org.ergoplatform.wallet.serialization.ErgoWalletSerializer
+import scorex.util.serialization.{Reader, Writer}
+
 import scala.util.{Failure, Try}
 
 /**
@@ -48,6 +51,23 @@ object DerivationPath {
       val isPublicBranch = split.head == PublicBranchMasterId
       pathTry.map(DerivationPath(_, isPublicBranch))
     }
+  }
+
+}
+
+object DerivationPathSerializer extends ErgoWalletSerializer[DerivationPath] {
+
+  override def serialize(obj: DerivationPath, w: Writer): Unit = {
+    w.put(if (obj.publicBranch) 0x01 else 0x00)
+    w.putInt(obj.depth)
+    obj.decodedPath.foreach(i => w.putBytes(Index.serializeIndex(i)))
+  }
+
+  override def parse(r: Reader): DerivationPath = {
+    val publicBranch = if (r.getByte() == 0x01) true else false
+    val depth = r.getInt()
+    val path = (0 until depth).map(_ => Index.parseIndex(r.getBytes(4))).toList
+    DerivationPath(path, publicBranch)
   }
 
 }

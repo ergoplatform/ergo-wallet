@@ -31,7 +31,7 @@ class EncryptionSpec
       val iv = scorex.utils.Random.randomBytes(16)
       val salt = scorex.utils.Random.randomBytes(32)
       val (encrypted, mac) = crypto.AES.encrypt(data, pass, salt, iv)(settings)
-      encrypted(scala.util.Random.nextInt(encrypted.length)) = 0x0
+      encrypted(scala.util.Random.nextInt(encrypted.length)) = 0x00
       val decryptedTry = crypto.AES.decrypt(encrypted, pass, salt, iv, mac)(settings)
 
       decryptedTry shouldBe 'failure
