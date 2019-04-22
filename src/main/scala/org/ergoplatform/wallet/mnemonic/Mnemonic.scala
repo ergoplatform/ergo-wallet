@@ -63,9 +63,9 @@ object Mnemonic {
   /**
     * Converts mnemonic phrase to seed it was derived from.
     */
-  def toSeed(mnemonic: String, pass: Option[String] = None): Array[Byte] = {
+  def toSeed(mnemonic: String, passOpt: Option[String] = None): Array[Byte] = {
     val normalizedMnemonic = normalize(mnemonic.toCharArray, NFKD).toCharArray
-    val normalizedSeed = normalize(s"mnemonic${pass.getOrElse("")}", NFKD)
+    val normalizedSeed = normalize(s"mnemonic${passOpt.getOrElse("")}", NFKD)
 
     val spec = new PBEKeySpec(
       normalizedMnemonic,

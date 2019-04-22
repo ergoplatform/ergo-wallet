@@ -8,6 +8,7 @@ import io.circe.generic.auto._
 import io.circe.parser._
 import io.circe.syntax._
 import org.ergoplatform.wallet.crypto
+import org.ergoplatform.wallet.mnemonic.Mnemonic
 import org.ergoplatform.wallet.settings.{EncryptionSettings, SecretStorageSettings}
 import scorex.util.encode.Base16
 
@@ -85,6 +86,15 @@ object JsonSecretStorage {
     util.Arrays.fill(seed, 0: Byte)
 
     new JsonSecretStorage(file, settings.encryption)
+  }
+
+  /**
+    * Initializes storage with the seed derived from an existing mnemonic phrase.
+    */
+  def restore(mnemonic: String, mnemonicPassOpt: Option[String], encryptionPass: String)
+             (settings: SecretStorageSettings): JsonSecretStorage = {
+    val seed = Mnemonic.toSeed(mnemonic, mnemonicPassOpt)
+    init(seed, encryptionPass)(settings)
   }
 
 }
