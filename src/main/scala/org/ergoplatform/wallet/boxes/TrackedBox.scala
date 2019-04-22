@@ -10,13 +10,13 @@ import scorex.util.{ModifierId, bytesToId, idToBytes}
   * A box tracked by a wallet that contains Ergo box itself as well as
   * its state (e.g. spent or not, confirmed or not etc).
   *
-  * @param creationTxId     - Id of transaction created the box
-  * @param creationOutIndex - Output index in the creation transaction
-  * @param inclusionHeightOpt  - Height the transaction was included into blockchain
-  * @param spendingTxIdOpt  - Id of transaction which spends the box if exists and known
-  * @param spendingHeightOpt   - Height of the spending transaction block in blockchain if known
-  * @param box              - Underlying Ergo box
-  * @param certainty        - Whether the box is definitely belongs to the user or not
+  * @param creationTxId       - Id of transaction created the box
+  * @param creationOutIndex   - Output index in the creation transaction
+  * @param inclusionHeightOpt - Height the transaction was included into blockchain
+  * @param spendingTxIdOpt    - Id of transaction which spends the box if exists and known
+  * @param spendingHeightOpt  - Height of the spending transaction block in blockchain if known
+  * @param box                - Underlying Ergo box
+  * @param certainty          - Whether the box is definitely belongs to the user or not
   */
 final case class TrackedBox(creationTxId: ModifierId,
                             creationOutIndex: Short,
