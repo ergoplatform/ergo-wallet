@@ -14,7 +14,7 @@ object Constants {
 
   val BlocksPerYear: Int = BlocksPerDay * 365
 
-  //For how many blocks a box could be put into the state with no paying.
+  //For how many blocks a box could be put into the state with no paying storage rent.
   //4 years
   val StoragePeriod: Int = 4 * BlocksPerYear
 
