@@ -1,5 +1,8 @@
 package org.ergoplatform.wallet.protocol.context
 
+/**
+  * Blockchain parameters readjustable via miners voting.
+  */
 trait ErgoLikeParameters {
 
   def storageFeeFactor: Int
@@ -23,5 +26,4 @@ trait ErgoLikeParameters {
   def softForkVotesCollected: Option[Int]
 
   def blockVersion: Byte
-
 }
