@@ -1,6 +1,6 @@
 package org.ergoplatform.wallet.secrets
 
-import org.ergoplatform.wallet.settings.WalletSettings
+import org.ergoplatform.wallet.settings.SecretStorageSettings
 import org.ergoplatform.wallet.utils.{FileUtils, Generators}
 import org.scalatest.prop.GeneratorDrivenPropertyChecks
 import org.scalatest.{Matchers, PropSpec}
@@ -15,7 +15,7 @@ class JsonSecretStorageSpec
   property("initialization and unlock") {
     forAll(entropyGen, passwordGen, encryptionSettingsGen) { (seed, pass, cryptoSettings) =>
       val dir = createTempDir
-      val settings = WalletSettings(dir.getAbsolutePath, cryptoSettings)
+      val settings = SecretStorageSettings(dir.getAbsolutePath, cryptoSettings)
       val storage = JsonSecretStorage.init(seed, pass)(settings)
 
       storage.isLocked shouldBe true
@@ -31,7 +31,7 @@ class JsonSecretStorageSpec
   property("secrets erasure on lock") {
     forAll(entropyGen, passwordGen, encryptionSettingsGen) { (seed, pass, cryptoSettings) =>
       val dir = createTempDir
-      val settings = WalletSettings(dir.getAbsolutePath, cryptoSettings)
+      val settings = SecretStorageSettings(dir.getAbsolutePath, cryptoSettings)
       val storage = JsonSecretStorage.init(seed, pass)(settings)
 
       storage.unlock(pass)

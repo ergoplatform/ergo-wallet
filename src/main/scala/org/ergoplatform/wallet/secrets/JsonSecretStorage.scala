@@ -8,7 +8,7 @@ import io.circe.generic.auto._
 import io.circe.parser._
 import io.circe.syntax._
 import org.ergoplatform.wallet.crypto
-import org.ergoplatform.wallet.settings.{EncryptionSettings, WalletSettings}
+import org.ergoplatform.wallet.settings.{EncryptionSettings, SecretStorageSettings}
 import scorex.util.encode.Base16
 
 import scala.util.Try
@@ -68,7 +68,7 @@ object JsonSecretStorage {
   /**
     * Initializes storage instance with new wallet file encrypted with the given `pass`.
     */
-  def init(seed: Array[Byte], pass: String)(settings: WalletSettings): JsonSecretStorage = {
+  def init(seed: Array[Byte], pass: String)(settings: SecretStorageSettings): JsonSecretStorage = {
     val iv = scorex.utils.Random.randomBytes(crypto.AES.NonceBitsLen / 8)
     val salt = scorex.utils.Random.randomBytes(32)
     val (ciphertext, tag) = crypto.AES.encrypt(seed, pass, salt, iv)(settings.encryption)
