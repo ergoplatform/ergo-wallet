@@ -46,7 +46,7 @@ class ErgoProvingInterpreter(val secrets: IndexedSeq[DLogProverInput], params: E
 
           val context = new ErgoLikeContext(
             stateContext.currentHeight,
-            ErgoInterpreter.stateTreeFromDigest(stateContext.previousStateDigest),
+            ErgoInterpreter.avlTreeFromDigest(stateContext.previousStateDigest),
             stateContext.lastBlockMinerPk,
             stateContext.sigmaLastHeaders,
             stateContext.sigmaPreHeader,

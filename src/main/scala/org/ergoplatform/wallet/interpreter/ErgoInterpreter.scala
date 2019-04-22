@@ -81,7 +81,7 @@ object ErgoInterpreter {
   def apply(params: ErgoLikeParameters): ErgoInterpreter =
     new ErgoInterpreter(params)(new RuntimeIRContext)
 
-  def stateTreeFromDigest(digest: ADDigest): AvlTreeData = {
+  def avlTreeFromDigest(digest: ADDigest): AvlTreeData = {
     val flags = AvlTreeFlags(insertAllowed = true, updateAllowed = true, removeAllowed = true)
     AvlTreeData(digest, flags, Constants.HashLength)
   }
