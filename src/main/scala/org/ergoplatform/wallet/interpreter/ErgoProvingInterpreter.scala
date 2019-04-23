@@ -75,4 +75,7 @@ object ErgoProvingInterpreter {
 
   def apply(secrets: IndexedSeq[DLogProverInput], params: ErgoLikeParameters): ErgoProvingInterpreter =
     new ErgoProvingInterpreter(secrets, params)(new RuntimeIRContext)
+
+  def apply(rootSecret: DLogProverInput, params: ErgoLikeParameters): ErgoProvingInterpreter =
+    new ErgoProvingInterpreter(IndexedSeq(rootSecret), params)(new RuntimeIRContext)
 }
