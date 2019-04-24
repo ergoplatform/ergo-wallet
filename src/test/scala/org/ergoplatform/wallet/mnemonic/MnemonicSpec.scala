@@ -404,7 +404,7 @@ class MnemonicSpec
     val sentenceSize = if (langId == "japanese") sentence.split("\u3000").length else sentence.split(" ").length
     val strength = Mnemonic.AllowedStrengths.zip(Mnemonic.MnemonicSentenceSizes).find(_._2 == sentenceSize).map(_._1).get
     val mnemonic = new Mnemonic(langId, strength)
-    Base16.encode(mnemonic.toSeed(sentence, Some(pass))) shouldEqual seed
+    Base16.encode(Mnemonic.toSeed(sentence, Some(pass))) shouldEqual seed
     normalize(mnemonic.toMnemonic(Base16.decode(entropy).get).get, NFKD) shouldEqual normalize(sentence, NFKD)
   }
 

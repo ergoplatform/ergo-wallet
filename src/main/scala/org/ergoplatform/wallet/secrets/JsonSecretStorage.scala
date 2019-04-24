@@ -8,7 +8,8 @@ import io.circe.generic.auto._
 import io.circe.parser._
 import io.circe.syntax._
 import org.ergoplatform.wallet.crypto
-import org.ergoplatform.wallet.settings.{EncryptionSettings, WalletSettings}
+import org.ergoplatform.wallet.mnemonic.Mnemonic
+import org.ergoplatform.wallet.settings.{EncryptionSettings, SecretStorageSettings}
 import scorex.util.encode.Base16
 
 import scala.util.Try
@@ -22,18 +23,17 @@ import scala.util.Try
 final class JsonSecretStorage(val secretFile: File, encryptionSettings: EncryptionSettings)
   extends SecretStorage {
 
-  private var unlockedSecrets: Map[Int, SecureSecret] = Map.empty
+  private var unlockedSecret: Option[ExtendedSecretKey] = None
 
-  override def isLocked: Boolean = unlockedSecrets.isEmpty
+  override def isLocked: Boolean = unlockedSecret.isEmpty
 
-  override def secrets: Map[Int, SecureSecret] = unlockedSecrets
+  override def secret: Option[ExtendedSecretKey] = unlockedSecret
 
   /**
     * Makes secrets with `secretsIndices` available through `secrets` call.
-    * @param secretsIndices - indexes of secrets to unlock
-    * @param pass           - password to be used to decrypt secret
+    * @param pass - password to be used to decrypt secret
     */
-  override def unlock(secretsIndices: IndexedSeq[Int], pass: String): Try[Unit] = {
+  override def unlock(pass: String): Try[Unit] = {
     val secretFileRaw = scala.io.Source.fromFile(secretFile, "UTF-8").getLines().mkString
     decode[EncryptedSecret](secretFileRaw)
       .map { encryptedSecret =>
@@ -51,19 +51,15 @@ final class JsonSecretStorage(val secretFile: File, encryptionSettings: Encrypti
       }
       .toTry
       .flatten
-      .map { seed =>
-        secretsIndices.foreach { idx =>
-          unlockedSecrets += idx -> new SecureSecret(secretFromSeed(idx, seed))
-        }
-      }
+      .map(seed => unlockedSecret = Some(ExtendedSecretKey.deriveMasterKey(seed)))
   }
 
   /**
     * Destroys all loaded secrets.
     */
   override def lock(): Unit = {
-    unlockedSecrets.values.foreach(_.zeroSecret())
-    unlockedSecrets = Map.empty
+    unlockedSecret.foreach(_.zeroSecret())
+    unlockedSecret = None
   }
 
 }
@@ -73,7 +69,7 @@ object JsonSecretStorage {
   /**
     * Initializes storage instance with new wallet file encrypted with the given `pass`.
     */
-  def init(seed: Array[Byte], pass: String)(settings: WalletSettings): JsonSecretStorage = {
+  def init(seed: Array[Byte], pass: String)(settings: SecretStorageSettings): JsonSecretStorage = {
     val iv = scorex.utils.Random.randomBytes(crypto.AES.NonceBitsLen / 8)
     val salt = scorex.utils.Random.randomBytes(32)
     val (ciphertext, tag) = crypto.AES.encrypt(seed, pass, salt, iv)(settings.encryption)
@@ -90,6 +86,15 @@ object JsonSecretStorage {
     util.Arrays.fill(seed, 0: Byte)
 
     new JsonSecretStorage(file, settings.encryption)
+  }
+
+  /**
+    * Initializes storage with the seed derived from an existing mnemonic phrase.
+    */
+  def restore(mnemonic: String, mnemonicPassOpt: Option[String], encryptionPass: String)
+             (settings: SecretStorageSettings): JsonSecretStorage = {
+    val seed = Mnemonic.toSeed(mnemonic, mnemonicPassOpt)
+    init(seed, encryptionPass)(settings)
   }
 
 }

@@ -12,9 +12,9 @@ trait SecretStorage {
 
   def isLocked: Boolean
 
-  def secrets: Map[Int, SecureSecret]
+  def secret: Option[ExtendedSecretKey]
 
-  def unlock(secretsIndices: IndexedSeq[Int], pass: String): Try[Unit]
+  def unlock(pass: String): Try[Unit]
 
   def lock(): Unit
 
