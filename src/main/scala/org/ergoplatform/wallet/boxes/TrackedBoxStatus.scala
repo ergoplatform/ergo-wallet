@@ -4,19 +4,24 @@ sealed abstract class BoxCertainty(val certain: Boolean)
 
 object BoxCertainty {
 
+  /** The fact that box could be spent with known key is confirmed. */
   case object Certain extends BoxCertainty(certain = true)
 
+  /** Known public key(s) was(were) detected in box proposition,
+    * but prover isn't certain whether he could spend it */
   case object Uncertain extends BoxCertainty(certain = false)
 
 }
 
-sealed abstract class ChainStatus(val mainChain: Boolean)
+sealed abstract class ChainStatus(val onChain: Boolean)
 
 object ChainStatus {
 
-  case object MainChain extends ChainStatus(mainChain = true)
+  /** Box is presented in blockchain (main chain only). */
+  case object OnChain extends ChainStatus(onChain = true)
 
-  case object Fork extends ChainStatus(mainChain = false)
+  /** Box isn't presented in blockchain (awaiting in mempool to be added). */
+  case object OffChain extends ChainStatus(onChain = false)
 
 }
 
