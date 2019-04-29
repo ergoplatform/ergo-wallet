@@ -38,25 +38,25 @@ final case class TrackedBox(creationTxId: ModifierId,
     * Can be derived from `spendingStatus` and `chainStatus` combination
     */
   def creationChainStatus: ChainStatus =
-    if (inclusionHeightOpt.isEmpty) ChainStatus.Fork
-    else ChainStatus.MainChain
+    if (inclusionHeightOpt.isEmpty) ChainStatus.OffChain
+    else ChainStatus.OnChain
 
   /**
     * Whether box spending is confirmed or not, `Offchain` for unspent boxes.
     * Can be derived from `spendingStatus` and `chainStatus` combination
     */
   def spendingChainStatus: ChainStatus =
-    if (spendingStatus == SpendingStatus.Unspent || spendingHeightOpt.isEmpty) ChainStatus.Fork
-    else ChainStatus.MainChain
+    if (spendingStatus == SpendingStatus.Unspent || spendingHeightOpt.isEmpty) ChainStatus.OffChain
+    else ChainStatus.OnChain
 
   /**
     * Same as `creationChainStatus` for unspent boxes,
     * same as `spendingChainStatus` for spent boxes
     */
   def chainStatus: ChainStatus =
-    if (creationChainStatus == ChainStatus.Fork || spendingStatus == SpendingStatus.Spent &&
-      spendingChainStatus == ChainStatus.Fork) ChainStatus.Fork
-    else ChainStatus.MainChain
+    if (creationChainStatus == ChainStatus.OffChain || spendingStatus == SpendingStatus.Spent &&
+      spendingChainStatus == ChainStatus.OffChain) ChainStatus.OffChain
+    else ChainStatus.OnChain
 
   def boxId: ModifierId = bytesToId(box.id)
 

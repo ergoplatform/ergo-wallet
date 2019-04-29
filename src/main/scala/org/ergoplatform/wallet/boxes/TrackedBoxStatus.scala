@@ -10,13 +10,13 @@ object BoxCertainty {
 
 }
 
-sealed abstract class ChainStatus(val mainChain: Boolean)
+sealed abstract class ChainStatus(val onChain: Boolean)
 
 object ChainStatus {
 
-  case object MainChain extends ChainStatus(mainChain = true)
+  case object OnChain extends ChainStatus(onChain = true)
 
-  case object Fork extends ChainStatus(mainChain = false)
+  case object OffChain extends ChainStatus(onChain = false)
 
 }
 
