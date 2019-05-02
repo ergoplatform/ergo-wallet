@@ -2,7 +2,7 @@ name := "ergo-wallet"
 
 organization := "org.ergoplatform"
 
-version := "0.1.1"
+version := "0.2.0"
 
 scalaVersion := "2.12.8"
 
@@ -13,7 +13,7 @@ resolvers ++= Seq(
   "Typesafe maven releases" at "http://repo.typesafe.com/typesafe/maven-releases/"
 )
 
-val sigmaStateVersion = "master-2b4b07a1-SNAPSHOT"
+val sigmaStateVersion = "v2.1-b5a50364-SNAPSHOT"
 val circeVersion = "0.10.0"
 
 libraryDependencies ++= Seq(
