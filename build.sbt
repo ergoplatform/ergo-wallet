@@ -2,7 +2,7 @@ name := "ergo-wallet"
 
 organization := "org.ergoplatform"
 
-version := "0.2.0"
+version := "0.2-R1-SNAPSHOT"
 
 scalaVersion := "2.12.8"
 
