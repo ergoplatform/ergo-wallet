@@ -2,7 +2,7 @@ name := "ergo-wallet"
 
 organization := "org.ergoplatform"
 
-version := "0.2-R2-SNAPSHOT"
+version := "0.2-R3-SNAPSHOT"
 
 scalaVersion := "2.12.8"
 
@@ -38,6 +38,9 @@ publishArtifact in Test := false
 
 publishTo in ThisBuild :=
   Some(if (isSnapshot.value) Opts.resolver.sonatypeSnapshots else Opts.resolver.sonatypeStaging)
+
+publishConfiguration := publishConfiguration.value.withOverwrite(true)
+publishLocalConfiguration := publishLocalConfiguration.value.withOverwrite(true)
 
 pomExtra in ThisBuild :=
   <scm>
