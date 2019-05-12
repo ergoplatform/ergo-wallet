@@ -13,7 +13,7 @@ resolvers ++= Seq(
   "Typesafe maven releases" at "http://repo.typesafe.com/typesafe/maven-releases/"
 )
 
-val sigmaStateVersion = "master-2b4b07a1-SNAPSHOT"
+val sigmaStateVersion = "i437-soft-forkability-a3045b47-SNAPSHOT"
 val circeVersion = "0.10.0"
 
 libraryDependencies ++= Seq(
@@ -38,6 +38,9 @@ publishArtifact in Test := false
 
 publishTo in ThisBuild :=
   Some(if (isSnapshot.value) Opts.resolver.sonatypeSnapshots else Opts.resolver.sonatypeStaging)
+
+publishConfiguration := publishConfiguration.value.withOverwrite(true)
+publishLocalConfiguration := publishLocalConfiguration.value.withOverwrite(true)
 
 pomExtra in ThisBuild :=
   <scm>
