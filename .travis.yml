@@ -6,6 +6,7 @@ branches:
   only:
     - master
     - v2.1
+    - soft-forkability2
 scala:
   - 2.12.8
 script:
