@@ -22,7 +22,7 @@ import scala.util.{Failure, Success, Try}
   * @param secretKeys - secrets in extended form to be used by prover
   * @param params     - ergo network parameters
   */
-class ErgoProvingInterpreter(secretKeys: IndexedSeq[ExtendedSecretKey], params: ErgoLikeParameters)
+class ErgoProvingInterpreter(val secretKeys: IndexedSeq[ExtendedSecretKey], params: ErgoLikeParameters)
                             (implicit IR: IRContext)
   extends ErgoInterpreter(params) with ProverInterpreter {
 
