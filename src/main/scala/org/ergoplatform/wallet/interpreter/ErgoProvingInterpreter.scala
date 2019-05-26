@@ -4,6 +4,7 @@ import java.util
 
 import org.ergoplatform._
 import org.ergoplatform.wallet.protocol.context.{ErgoLikeParameters, ErgoLikeStateContext, TransactionContext}
+import org.ergoplatform.wallet.secrets.ExtendedSecretKey
 import sigmastate.basics.DLogProtocol.{DLogProverInput, ProveDlog}
 import sigmastate.eval.{IRContext, RuntimeIRContext}
 import sigmastate.interpreter.{ContextExtension, ProverInterpreter}
@@ -18,12 +19,14 @@ import scala.util.{Failure, Success, Try}
   * blockchain state) by using the secrets (no additional inputs, e.g. hash function preimages required in scripts,
   * are supported. Here, signing a transaction means spending proofs generation for all of its input boxes.
   *
-  * @param secrets - secrets to be used by prover
-  * @param params  - ergo network parameters
+  * @param secretKeys - secrets in extended form to be used by prover
+  * @param params     - ergo network parameters
   */
-class ErgoProvingInterpreter(val secrets: IndexedSeq[DLogProverInput], params: ErgoLikeParameters)
+class ErgoProvingInterpreter(secretKeys: IndexedSeq[ExtendedSecretKey], params: ErgoLikeParameters)
                             (implicit IR: IRContext)
   extends ErgoInterpreter(params) with ProverInterpreter {
+
+  val secrets: IndexedSeq[DLogProverInput] = secretKeys.map(_.key)
 
   val pubKeys: IndexedSeq[ProveDlog] = secrets.map(_.publicImage)
 
@@ -73,9 +76,9 @@ class ErgoProvingInterpreter(val secrets: IndexedSeq[DLogProverInput], params: E
 
 object ErgoProvingInterpreter {
 
-  def apply(secrets: IndexedSeq[DLogProverInput], params: ErgoLikeParameters): ErgoProvingInterpreter =
+  def apply(secrets: IndexedSeq[ExtendedSecretKey], params: ErgoLikeParameters): ErgoProvingInterpreter =
     new ErgoProvingInterpreter(secrets, params)(new RuntimeIRContext)
 
-  def apply(rootSecret: DLogProverInput, params: ErgoLikeParameters): ErgoProvingInterpreter =
+  def apply(rootSecret: ExtendedSecretKey, params: ErgoLikeParameters): ErgoProvingInterpreter =
     new ErgoProvingInterpreter(IndexedSeq(rootSecret), params)(new RuntimeIRContext)
 }
