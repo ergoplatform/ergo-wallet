@@ -62,8 +62,8 @@ final case class TrackedBox(creationTxId: ModifierId,
 
   def value: Long = box.value
 
-  def assets: Map[ModifierId, Long] = box.additionalTokens.map { case (id, amt) =>
-    bytesToId(id) -> amt
+  def assets: Map[ModifierId, Long] = box.additionalTokens.toArray.map {
+    case (id, amt) => bytesToId(id) -> amt
   }.toMap
 
 }
