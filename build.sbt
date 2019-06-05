@@ -37,7 +37,7 @@ publishMavenStyle in ThisBuild := true
 publishArtifact in Test := false
 
 publishTo in ThisBuild :=
-  Some(Opts.resolver.sonatypeStaging)
+  Some(if (isSnapshot.value) Opts.resolver.sonatypeSnapshots else Opts.resolver.sonatypeStaging)
 
 pomExtra in ThisBuild :=
   <developers>
