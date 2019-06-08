@@ -40,16 +40,12 @@ publishTo in ThisBuild :=
   Some(if (isSnapshot.value) Opts.resolver.sonatypeSnapshots else Opts.resolver.sonatypeStaging)
 
 pomExtra in ThisBuild :=
-  <scm>
-    <url>git@github.com:ergoplatform/ergo-wallet.git</url>
-    <connection>scm:git:git@github.com:ergoplatform/ergo-wallet.git</connection>
-  </scm>
-    <developers>
-      <developer>
-        <id>Oskin1</id>
-        <name>Ilya Oskin</name>
-      </developer>
-    </developers>
+  <developers>
+    <developer>
+      <id>Oskin1</id>
+      <name>Ilya Oskin</name>
+    </developer>
+  </developers>
 
 enablePlugins(GitVersioning)
 
