@@ -60,6 +60,8 @@ class ErgoProvingInterpreter(val secretKeys: IndexedSeq[ExtendedSecretKey], para
             ContextExtension.empty
           )
 
+          val maxCost = params.maxBlockCost
+
           prove(inputBox.ergoTree, context, unsignedTx.messageToSign).flatMap { proverResult =>
             val newTC = totalCost + proverResult.cost
             if (newTC > maxCost) Failure(new Exception(s"Cost of transaction $unsignedTx exceeds limit $maxCost"))
