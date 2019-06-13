@@ -3,6 +3,7 @@ package org.ergoplatform.wallet.interpreter
 import java.util
 
 import org.ergoplatform._
+import org.ergoplatform.validation.ValidationRules
 import org.ergoplatform.wallet.protocol.context.{ErgoLikeParameters, ErgoLikeStateContext, TransactionContext}
 import org.ergoplatform.wallet.secrets.ExtendedSecretKey
 import sigmastate.basics.DLogProtocol.{DLogProverInput, ProveDlog}
@@ -58,7 +59,8 @@ class ErgoProvingInterpreter(val secretKeys: IndexedSeq[ExtendedSecretKey], para
             transactionContext.spendingTransaction,
             transactionContext.self,
             ContextExtension.empty,
-            costLimit = params.maxBlockCost
+            ValidationRules.currentSettings,
+            params.maxBlockCost
           )
 
           prove(inputBox.ergoTree, context, unsignedTx.messageToSign).flatMap { proverResult =>
