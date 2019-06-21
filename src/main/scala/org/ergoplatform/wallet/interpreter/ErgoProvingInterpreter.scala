@@ -35,6 +35,15 @@ class ErgoProvingInterpreter(val secretKeys: IndexedSeq[ExtendedSecretKey],
 
   val pubKeys: IndexedSeq[SigmaBoolean] = secrets.map(_.publicImage.asInstanceOf[SigmaBoolean])
 
+  /**
+    * A method which is generating a commitment to randomness, which is a first step to prove
+    * knowledge of a secret. Method checks whether secret is known to the prover, and returns
+    * None if the secret is not known.
+    *
+    * @param pubkey - public image of a secret
+    * @return Some(cmt), a commitment to (secret) randomness, if the secret corresponding to pubkey is known,
+    *         None otherwise
+    */
   def generateCommitmentFor(pubkey: SigmaBoolean): Option[FirstProverMessage] = {
     val idx = pubKeys.indexOf(pubkey)
     if (idx == -1) {
