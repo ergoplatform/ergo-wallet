@@ -30,7 +30,7 @@ class ErgoProvingInterpreter(val secretKeys: IndexedSeq[ExtendedSecretKey], para
 
   val pubKeys: IndexedSeq[ProveDlog] = secrets.map(_.publicImage)
 
-  /** Require `unsignedTx` and `boxesToSpend` have the same boxIds in the same order */
+  /** Requires `unsignedTx` inputs and `boxesToSpend` have the same boxIds in the same order */
   def sign(unsignedTx: UnsignedErgoLikeTransaction,
            boxesToSpend: IndexedSeq[ErgoBox],
            dataBoxes: IndexedSeq[ErgoBox],
