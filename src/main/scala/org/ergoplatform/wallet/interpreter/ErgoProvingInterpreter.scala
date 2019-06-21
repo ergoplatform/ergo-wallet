@@ -6,7 +6,9 @@ import org.ergoplatform._
 import org.ergoplatform.validation.ValidationRules
 import org.ergoplatform.wallet.protocol.context.{ErgoLikeParameters, ErgoLikeStateContext, TransactionContext}
 import org.ergoplatform.wallet.secrets.ExtendedSecretKey
-import sigmastate.basics.DLogProtocol.{DLogProverInput, ProveDlog}
+import sigmastate.Values.SigmaBoolean
+import sigmastate.basics.DLogProtocol.{DLogInteractiveProver, DLogProverInput, ProveDlog}
+import sigmastate.basics._
 import sigmastate.eval.{IRContext, RuntimeIRContext}
 import sigmastate.interpreter.{ContextExtension, HintsBag, ProverInterpreter}
 
@@ -25,13 +27,32 @@ import scala.util.{Failure, Success, Try}
   */
 class ErgoProvingInterpreter(val secretKeys: IndexedSeq[ExtendedSecretKey],
                              params: ErgoLikeParameters,
-                             hints: HintsBag)
+                             hintsBag: HintsBag)
                             (implicit IR: IRContext)
   extends ErgoInterpreter(params) with ProverInterpreter {
 
-  val secrets: IndexedSeq[DLogProverInput] = secretKeys.map(_.key)
+  val secrets: IndexedSeq[SigmaProtocolPrivateInput[_, _]] = secretKeys.map(_.key)
 
-  val pubKeys: IndexedSeq[ProveDlog] = secrets.map(_.publicImage)
+  val pubKeys: IndexedSeq[SigmaBoolean] = secrets.map(_.publicImage.asInstanceOf[SigmaBoolean])
+
+  def generateCommitmentFor(pubkey: SigmaBoolean): Option[FirstProverMessage] = {
+    val idx = pubKeys.indexOf(pubkey)
+    if (idx == -1) {
+      None
+    } else {
+      val s = secrets(idx)
+
+      val proverOpt: Option[InteractiveProver[_, _, _]] = pubkey match {
+        case dl: ProveDlog =>
+          Some(new DLogInteractiveProver(dl, Some(s.asInstanceOf[DLogProverInput])))
+        case dh: ProveDHTuple =>
+          Some(new DiffieHellmanTupleInteractiveProver(dh, Some(s.asInstanceOf[DiffieHellmanTupleProverInput])))
+        case _ => None
+      }
+
+      proverOpt.map(_.firstMessage)
+    }
+  }
 
   /** Requires `unsignedTx` inputs and `boxesToSpend` have the same boxIds in the same order */
   def sign(unsignedTx: UnsignedErgoLikeTransaction,
@@ -65,7 +86,7 @@ class ErgoProvingInterpreter(val secretKeys: IndexedSeq[ExtendedSecretKey],
             params.maxBlockCost
           )
 
-          prove(inputBox.ergoTree, context, unsignedTx.messageToSign).flatMap { proverResult =>
+          prove(inputBox.ergoTree, context, unsignedTx.messageToSign, hintsBag).flatMap { proverResult =>
             val newTC = totalCost + proverResult.cost
             if (newTC > context.costLimit)
               Failure(new Exception(s"Cost of transaction $unsignedTx exceeds limit ${context.costLimit}"))
