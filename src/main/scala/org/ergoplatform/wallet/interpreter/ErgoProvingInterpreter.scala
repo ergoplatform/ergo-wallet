@@ -3,6 +3,7 @@ package org.ergoplatform.wallet.interpreter
 import java.util
 
 import org.ergoplatform._
+import org.ergoplatform.validation.ValidationRules
 import org.ergoplatform.wallet.protocol.context.{ErgoLikeParameters, ErgoLikeStateContext, TransactionContext}
 import org.ergoplatform.wallet.secrets.ExtendedSecretKey
 import sigmastate.basics.DLogProtocol.{DLogProverInput, ProveDlog}
@@ -59,12 +60,15 @@ class ErgoProvingInterpreter(val secretKeys: IndexedSeq[ExtendedSecretKey],
             transactionContext.boxesToSpend,
             transactionContext.spendingTransaction,
             transactionContext.self,
-            ContextExtension.empty
+            ContextExtension.empty,
+            ValidationRules.currentSettings,
+            params.maxBlockCost
           )
 
           prove(inputBox.ergoTree, context, unsignedTx.messageToSign).flatMap { proverResult =>
             val newTC = totalCost + proverResult.cost
-            if (newTC > maxCost) Failure(new Exception(s"Cost of transaction $unsignedTx exceeds limit $maxCost"))
+            if (newTC > context.costLimit)
+              Failure(new Exception(s"Cost of transaction $unsignedTx exceeds limit ${context.costLimit}"))
             else Success((Input(unsignedInput.boxId, proverResult) +: ins) -> newTC)
           }
         }
@@ -78,9 +82,13 @@ class ErgoProvingInterpreter(val secretKeys: IndexedSeq[ExtendedSecretKey],
 
 object ErgoProvingInterpreter {
 
-  def apply(secrets: IndexedSeq[ExtendedSecretKey], params: ErgoLikeParameters): ErgoProvingInterpreter =
-    new ErgoProvingInterpreter(secrets, params)(new RuntimeIRContext)
+  def apply(secrets: IndexedSeq[ExtendedSecretKey],
+            params: ErgoLikeParameters,
+            hints: HintsBag): ErgoProvingInterpreter =
+    new ErgoProvingInterpreter(secrets, params, hints)(new RuntimeIRContext)
 
-  def apply(rootSecret: ExtendedSecretKey, params: ErgoLikeParameters): ErgoProvingInterpreter =
-    new ErgoProvingInterpreter(IndexedSeq(rootSecret), params)(new RuntimeIRContext)
+  def apply(rootSecret: ExtendedSecretKey,
+            params: ErgoLikeParameters,
+            hints: HintsBag): ErgoProvingInterpreter =
+    new ErgoProvingInterpreter(IndexedSeq(rootSecret), params, hints)(new RuntimeIRContext)
 }

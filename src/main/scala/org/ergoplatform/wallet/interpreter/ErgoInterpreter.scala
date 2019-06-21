@@ -19,7 +19,7 @@ import scala.util.Try
   * @param params - current values of adjustable blockchain settings
   */
 class ErgoInterpreter(params: ErgoLikeParameters)(implicit IR: IRContext)
-  extends ErgoLikeInterpreter(params.maxBlockCost) {
+  extends ErgoLikeInterpreter {
 
   override type CTX = ErgoLikeContext
 
