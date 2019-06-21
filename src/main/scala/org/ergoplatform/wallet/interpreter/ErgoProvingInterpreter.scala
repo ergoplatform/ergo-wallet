@@ -31,6 +31,11 @@ class ErgoProvingInterpreter(val secretKeys: IndexedSeq[ExtendedSecretKey],
                             (implicit IR: IRContext)
   extends ErgoInterpreter(params) with ProverInterpreter {
 
+  def withHints(hintsBag: HintsBag): ErgoProvingInterpreter = new ErgoProvingInterpreter(secretKeys, params, hintsBag)
+
+  def addHints(additionalHints: HintsBag): ErgoProvingInterpreter =
+    new ErgoProvingInterpreter(secretKeys, params, hintsBag ++ additionalHints)
+
   val secrets: IndexedSeq[SigmaProtocolPrivateInput[_, _]] = secretKeys.map(_.key)
 
   val pubKeys: IndexedSeq[SigmaBoolean] = secrets.map(_.publicImage.asInstanceOf[SigmaBoolean])
@@ -121,4 +126,5 @@ object ErgoProvingInterpreter {
             params: ErgoLikeParameters,
             hints: HintsBag): ErgoProvingInterpreter =
     new ErgoProvingInterpreter(IndexedSeq(rootSecret), params, hints)(new RuntimeIRContext)
+
 }
