@@ -26,7 +26,7 @@ class ErgoInterpreter(params: ErgoLikeParameters)(implicit IR: IRContext)
   /**
     * Check that expired box is spent in a proper way
     *
-    * @param box           - box being spent
+    * @param box           - box to be spent
     * @param output        - newly created box
     * @param currentHeight - current height of the blockchain (at the moment of spending)
     * @return whether the box is spent properly according to the storage fee rule

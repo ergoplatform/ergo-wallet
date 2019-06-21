@@ -7,7 +7,7 @@ import org.ergoplatform.wallet.protocol.context.{ErgoLikeParameters, ErgoLikeSta
 import org.ergoplatform.wallet.secrets.ExtendedSecretKey
 import sigmastate.basics.DLogProtocol.{DLogProverInput, ProveDlog}
 import sigmastate.eval.{IRContext, RuntimeIRContext}
-import sigmastate.interpreter.{ContextExtension, ProverInterpreter}
+import sigmastate.interpreter.{ContextExtension, HintsBag, ProverInterpreter}
 
 import scala.util.{Failure, Success, Try}
 
@@ -22,7 +22,9 @@ import scala.util.{Failure, Success, Try}
   * @param secretKeys - secrets in extended form to be used by prover
   * @param params     - ergo network parameters
   */
-class ErgoProvingInterpreter(val secretKeys: IndexedSeq[ExtendedSecretKey], params: ErgoLikeParameters)
+class ErgoProvingInterpreter(val secretKeys: IndexedSeq[ExtendedSecretKey],
+                             params: ErgoLikeParameters,
+                             hints: HintsBag)
                             (implicit IR: IRContext)
   extends ErgoInterpreter(params) with ProverInterpreter {
 
