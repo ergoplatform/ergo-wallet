@@ -49,6 +49,15 @@ class ErgoProvingInterpreter(val secretKeys: IndexedSeq[ExtendedSecretKey],
 
   val pubKeys: IndexedSeq[SigmaBoolean] = secrets.map(_.publicImage.asInstanceOf[SigmaBoolean])
 
+  lazy val secretDlogs: IndexedSeq[DLogProverInput] = secrets.flatMap {
+    _ match {
+      case input: DLogProverInput => Some(input)
+      case _ => None
+    }
+  }
+
+  lazy val pubKeyDlogs: IndexedSeq[ProveDlog] = secretDlogs.map(_.publicImage)
+
   /**
     * A method which is generating a commitment to randomness, which is a first step to prove
     * knowledge of a secret. Method checks whether secret is known to the prover, and returns
