@@ -33,6 +33,9 @@ class ErgoProvingInterpreter(val secretKeys: IndexedSeq[ExtendedSecretKey],
 
   def withHints(hintsBag: HintsBag): ErgoProvingInterpreter = new ErgoProvingInterpreter(secretKeys, params, hintsBag)
 
+  def withParameters(newParams: ErgoLikeParameters): ErgoProvingInterpreter =
+    new ErgoProvingInterpreter(secretKeys, newParams, hintsBag)
+
   def addHints(additionalHints: HintsBag): ErgoProvingInterpreter =
     new ErgoProvingInterpreter(secretKeys, params, hintsBag ++ additionalHints)
 
