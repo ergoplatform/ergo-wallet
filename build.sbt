@@ -13,7 +13,7 @@ resolvers ++= Seq(
   "Typesafe maven releases" at "http://repo.typesafe.com/typesafe/maven-releases/"
 )
 
-val sigmaStateVersion = "faster-costing-778079d3-SNAPSHOT"
+val sigmaStateVersion = "faster-costing-dc710a37-SNAPSHOT"
 val circeVersion = "0.10.0"
 
 libraryDependencies ++= Seq(
