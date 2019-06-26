@@ -3,6 +3,7 @@ package org.ergoplatform.wallet.interpreter
 import java.util
 
 import org.ergoplatform._
+import org.ergoplatform.validation.ValidationRules
 import org.ergoplatform.wallet.protocol.context.{ErgoLikeParameters, ErgoLikeStateContext, TransactionContext}
 import org.ergoplatform.wallet.secrets.ExtendedSecretKey
 import sigmastate.basics.DLogProtocol.{DLogProverInput, ProveDlog}
@@ -47,6 +48,12 @@ class ErgoProvingInterpreter(val secretKeys: IndexedSeq[ExtendedSecretKey], para
 
         inputsCostTry.flatMap { case (ins, totalCost) =>
 
+          // Cost of transaction initialization: we should read and parse all inputs and data inputs,
+          // and also iterate through all outputs to check rules
+          val initialCost: Long = boxesToSpend.size * params.inputCost +
+          dataBoxes.size * params.dataInputCost +
+          unsignedTx.outputCandidates.size * params.outputCost
+
           val context = new ErgoLikeContext(
             stateContext.currentHeight,
             ErgoInterpreter.avlTreeFromDigest(stateContext.previousStateDigest),
@@ -57,12 +64,16 @@ class ErgoProvingInterpreter(val secretKeys: IndexedSeq[ExtendedSecretKey], para
             transactionContext.boxesToSpend,
             transactionContext.spendingTransaction,
             transactionContext.self,
-            ContextExtension.empty
+            ContextExtension.empty,
+            ValidationRules.currentSettings,
+            params.maxBlockCost,
+            initialCost
           )
 
           prove(inputBox.ergoTree, context, unsignedTx.messageToSign).flatMap { proverResult =>
             val newTC = totalCost + proverResult.cost
-            if (newTC > maxCost) Failure(new Exception(s"Cost of transaction $unsignedTx exceeds limit $maxCost"))
+            if (newTC > context.costLimit)
+              Failure(new Exception(s"Cost of transaction $unsignedTx exceeds limit ${context.costLimit}"))
             else Success((Input(unsignedInput.boxId, proverResult) +: ins) -> newTC)
           }
         }

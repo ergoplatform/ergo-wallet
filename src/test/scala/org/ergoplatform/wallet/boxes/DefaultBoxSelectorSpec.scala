@@ -147,17 +147,13 @@ class DefaultBoxSelectorSpec extends PropSpec with Matchers {
 
     val s1 = select(uBoxes.toIterator, noFilter, 1, Map(assetId3 -> 11))
     s1.isDefined shouldBe true
-    s1.get.changeBoxes.size == 2
+    s1.get.changeBoxes.size shouldBe 1
 
-    s1.get.changeBoxes(0)._1 shouldBe 50
+    s1.get.changeBoxes(0)._1 shouldBe 100
     s1.get.changeBoxes(0)._2(assetId1) shouldBe 1
     s1.get.changeBoxes(0)._2(assetId2) shouldBe 1
     s1.get.changeBoxes(0)._2(assetId3) shouldBe 90
     s1.get.changeBoxes(0)._2(assetId4) shouldBe 101
-
-    s1.get.changeBoxes(1)._1 shouldBe 50
-    s1.get.changeBoxes(1)._2(assetId5) shouldBe 100
-    s1.get.changeBoxes(1)._2(assetId6) shouldBe 100
 
     s1.get.boxes shouldBe Seq(box1, box3)
 
