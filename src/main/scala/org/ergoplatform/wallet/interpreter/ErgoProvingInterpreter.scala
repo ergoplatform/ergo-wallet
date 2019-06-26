@@ -1,5 +1,6 @@
 package org.ergoplatform.wallet.interpreter
 
+import java.math.BigInteger
 import java.util
 
 import org.ergoplatform._
@@ -64,25 +65,21 @@ class ErgoProvingInterpreter(val secretKeys: IndexedSeq[ExtendedSecretKey],
     * None if the secret is not known.
     *
     * @param pubkey - public image of a secret
-    * @return Some(cmt), a commitment to (secret) randomness, if the secret corresponding to pubkey is known,
-    *         None otherwise
+    * @return Some((r, cmt)), a commitment to (secret) randomness "cmt" along with the randomness "r",
+    *         if the secret corresponding to pubkey is known, None otherwise
     */
-  def generateCommitmentFor(pubkey: SigmaBoolean): Option[FirstProverMessage] = {
+  def generateCommitmentFor(pubkey: SigmaBoolean): Option[(BigInteger, FirstProverMessage)] = {
     val idx = pubKeys.indexOf(pubkey)
     if (idx == -1) {
       None
     } else {
-      val s = secrets(idx)
-
-      val proverOpt: Option[InteractiveProver[_, _, _]] = pubkey match {
+      pubkey match {
         case dl: ProveDlog =>
-          Some(new DLogInteractiveProver(dl, Some(s.asInstanceOf[DLogProverInput])))
+          Some(DLogInteractiveProver.firstMessage(dl))
         case dh: ProveDHTuple =>
-          Some(new DiffieHellmanTupleInteractiveProver(dh, Some(s.asInstanceOf[DiffieHellmanTupleProverInput])))
+          Some(DiffieHellmanTupleInteractiveProver.firstMessage(dh))
         case _ => None
       }
-
-      proverOpt.map(_.firstMessage)
     }
   }
 
