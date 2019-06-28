@@ -64,10 +64,10 @@ trait Generators {
     amt <- Gen.oneOf(1, 500, 20000, 10000000, Long.MaxValue)
   } yield Digest32 @@ id -> amt
 
-  def additionalTokensGen(cnt: Byte): Gen[Seq[(TokenId, Long)]] = Gen.listOfN(cnt, assetGen)
+  def additionalTokensGen(cnt: Int): Gen[Seq[(TokenId, Long)]] = Gen.listOfN(cnt, assetGen)
 
   def additionalTokensGen: Gen[Seq[(TokenId, Long)]] = for {
-    cnt <- Gen.chooseNum[Byte](0, ErgoBox.MaxTokens)
+    cnt <- Gen.chooseNum[Int](0, ErgoBox.MaxTokens)
     assets <- additionalTokensGen(cnt)
   } yield assets
 

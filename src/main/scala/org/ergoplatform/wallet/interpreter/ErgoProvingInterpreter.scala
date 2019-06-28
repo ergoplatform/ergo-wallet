@@ -112,7 +112,8 @@ class ErgoProvingInterpreter(val secretKeys: IndexedSeq[ExtendedSecretKey],
             transactionContext.self,
             ContextExtension.empty,
             ValidationRules.currentSettings,
-            params.maxBlockCost
+            params.maxBlockCost,
+            0 // initCost
           )
 
           prove(inputBox.ergoTree, context, unsignedTx.messageToSign, hintsBag).flatMap { proverResult =>
