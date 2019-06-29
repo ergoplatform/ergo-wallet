@@ -46,7 +46,7 @@ class ErgoProvingInterpreter(val secretKeys: IndexedSeq[ExtendedSecretKey],
   def addSecrets(newSecretKeys: IndexedSeq[ExtendedSecretKey]): ErgoProvingInterpreter =
     new ErgoProvingInterpreter(newSecretKeys ++ secretKeys, params, hintsBag)
 
-  val secrets: IndexedSeq[SigmaProtocolPrivateInput[_, _]] = secretKeys.map(_.key)
+  lazy val secrets: IndexedSeq[SigmaProtocolPrivateInput[_, _]] = secretKeys.map(_.key)
 
   lazy val pubKeys: IndexedSeq[SigmaBoolean] = secrets.map(_.publicImage.asInstanceOf[SigmaBoolean])
 
