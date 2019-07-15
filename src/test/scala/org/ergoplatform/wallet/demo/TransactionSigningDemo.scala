@@ -139,7 +139,7 @@ class TransactionSigningDemo extends PropSpec {
     val inputsToUse: IndexedSeq[ErgoBox] = availableInputs
       .takeWhile { inputInfo =>
         collectedValue += inputInfo.value
-        collectedValue >= targetPayoutValue
+        collectedValue < targetPayoutValue
       }
       .map { inputInfo =>
         val bytes = Base16.decode(inputInfo.ergoTreeRaw).getOrElse(throw new Exception("Failed to decode input id"))
@@ -313,7 +313,7 @@ class TransactionSigningDemo extends PropSpec {
     val inputsToUse: IndexedSeq[ErgoBox] = availableInputs
       .takeWhile { case (_, amt, _) =>
         collectedValue += amt
-        collectedValue >= targetPayoutValue
+        collectedValue < targetPayoutValue
       }
       .map { case (id, amt, ergoTreeStr) =>
         val bytes = Base16.decode(ergoTreeStr).getOrElse(throw new Exception("Failed to decode input id"))
