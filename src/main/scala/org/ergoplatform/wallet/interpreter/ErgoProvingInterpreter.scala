@@ -31,7 +31,9 @@ class ErgoProvingInterpreter(val secretKeys: IndexedSeq[ExtendedSecretKey], para
 
   val pubKeys: IndexedSeq[ProveDlog] = secrets.map(_.publicImage)
 
-  /** Require `unsignedTx` and `boxesToSpend` have the same boxIds in the same order */
+  /**
+    * @note requires `unsignedTx` and `boxesToSpend` have the same boxIds in the same order.
+    */
   def sign(unsignedTx: UnsignedErgoLikeTransaction,
            boxesToSpend: IndexedSeq[ErgoBox],
            dataBoxes: IndexedSeq[ErgoBox],
@@ -74,12 +76,12 @@ class ErgoProvingInterpreter(val secretKeys: IndexedSeq[ExtendedSecretKey], para
             val newTC = totalCost + proverResult.cost
             if (newTC > context.costLimit)
               Failure(new Exception(s"Cost of transaction $unsignedTx exceeds limit ${context.costLimit}"))
-            else Success((Input(unsignedInput.boxId, proverResult) +: ins) -> newTC)
+            else Success((ins :+ Input(unsignedInput.boxId, proverResult)) -> newTC)
           }
         }
       }
       .map { case (inputs, _) =>
-        new ErgoLikeTransaction(inputs.reverse, unsignedTx.dataInputs, unsignedTx.outputCandidates)
+        new ErgoLikeTransaction(inputs, unsignedTx.dataInputs, unsignedTx.outputCandidates)
       }
   }
 

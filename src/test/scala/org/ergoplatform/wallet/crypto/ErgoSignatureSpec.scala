@@ -1,4 +1,4 @@
-package org.ergoplatform.wallet.interpreter
+package org.ergoplatform.wallet.crypto
 
 import org.ergoplatform.wallet.utils.Generators
 import org.scalatest.{Matchers, PropSpec}
@@ -7,7 +7,7 @@ import sigmastate.basics.DLogProtocol.DLogProverInput
 
 class ErgoSignatureSpec extends PropSpec with Matchers with Generators {
 
-  import ErgoSignature._
+  import org.ergoplatform.wallet.crypto.ErgoSignature._
 
   property("sign/verify") {
 

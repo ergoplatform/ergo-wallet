@@ -1,4 +1,4 @@
-package org.ergoplatform.wallet.interpreter
+package org.ergoplatform.wallet.crypto
 
 import org.bouncycastle.util.BigIntegers
 import scorex.crypto.hash.Blake2b256
@@ -39,7 +39,7 @@ object ErgoSignature {
     if (y == 0 || y >= groupOrder) genSecret else y
   }
 
-  private def hf(x: Array[Byte]) = Blake2b256.hash(x).take(24)
+  private def hf(x: Array[Byte]): Array[Byte] = Blake2b256.hash(x).take(24)
 
   private def genCommitment(pk: EcPointType, w: EcPointType): Array[Byte] = {
     val prefix = Base16.decode("010027100108cd").get
