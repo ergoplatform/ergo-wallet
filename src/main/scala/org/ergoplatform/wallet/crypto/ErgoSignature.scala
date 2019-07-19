@@ -34,7 +34,7 @@ object ErgoSignature {
     java.util.Arrays.equals(hf(s), cBytes)
   }
 
-  private[interpreter] def genSecret: BigInt = {
+  private[crypto] def genSecret: BigInt = {
     val y = BigInt(BigIntegers.fromUnsignedByteArray(secureRandomBytes(32)))
     if (y == 0 || y >= groupOrder) genSecret else y
   }
