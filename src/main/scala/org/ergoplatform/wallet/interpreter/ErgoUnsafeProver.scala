@@ -10,12 +10,12 @@ import sigmastate.interpreter.{ContextExtension, ProverResult}
   * @note this prover is only suitable for signing only small number of simple inputs,
   *       for inputs with complex scripts use `ErgoProvingInterpreter`
   */
-class ErgoUnsafeProver {
+object ErgoUnsafeProver {
 
   import org.ergoplatform.wallet.crypto.ErgoSignature._
 
   /**
-    * Signs inputs of a given `unsignedTx`.
+    * Signs all inputs of a given `unsignedTx`.
     *
     * @note this method does not validate the cost of the given transaction
     * @return signed transaction
