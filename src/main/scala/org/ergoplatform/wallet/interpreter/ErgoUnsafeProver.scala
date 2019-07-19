@@ -14,6 +14,12 @@ class ErgoUnsafeProver {
 
   import org.ergoplatform.wallet.crypto.ErgoSignature._
 
+  /**
+    * Signs inputs of a given `unsignedTx`.
+    *
+    * @note this method does not validate the cost of the given transaction
+    * @return signed transaction
+    */
   def prove(unsignedTx: UnsignedErgoLikeTransaction,
             sk: DLogProverInput): ErgoLikeTransaction = {
     val sig = ProverResult(sign(unsignedTx.messageToSign, sk.w), ContextExtension.empty)

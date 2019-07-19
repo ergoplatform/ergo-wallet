@@ -13,6 +13,11 @@ object ErgoSignature {
 
   import CryptoConstants._
 
+  /**
+    * Signs given `msg` using given `sk`.
+    *
+    * @return signature bytes
+    */
   def sign(msg: Array[Byte], sk: BigInt): Array[Byte] = {
     val y = genSecret
     val pk = dlogGroup.exponentiate(dlogGroup.generator, sk.bigInteger)
@@ -23,6 +28,11 @@ object ErgoSignature {
     BigIntegers.asUnsignedByteArray(c.bigInteger) ++ BigIntegers.asUnsignedByteArray(z.bigInteger)
   }
 
+  /**
+    * Checks whether a given `signature` corresponds to a given `msg` and `pk`.
+    *
+    * @return `true` is the signature is valid, `false` otherwise
+    */
   def verify(msg: Array[Byte], signature: Array[Byte], pk: EcPointType): Boolean = {
     val cBytes = signature.take(24)
     val c = BigInt(BigIntegers.fromUnsignedByteArray(cBytes))
