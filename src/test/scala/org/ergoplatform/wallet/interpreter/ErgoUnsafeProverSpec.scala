@@ -1,13 +1,13 @@
 package org.ergoplatform.wallet.interpreter
 
 import org.ergoplatform.wallet.crypto.ErgoSignature
-import org.ergoplatform.{ErgoBox, ErgoBoxCandidate, ErgoScriptPredef, UnsignedErgoLikeTransaction, UnsignedInput}
 import org.ergoplatform.wallet.protocol.context.{ErgoLikeParameters, ErgoLikeStateContext}
 import org.ergoplatform.wallet.secrets.ExtendedSecretKey
 import org.ergoplatform.wallet.utils.Generators
+import org.ergoplatform._
 import org.scalacheck.Gen
-import org.scalatest.{FlatSpec, Matchers}
 import org.scalatest.prop.GeneratorDrivenPropertyChecks
+import org.scalatest.{FlatSpec, Matchers}
 import scorex.crypto.authds.ADDigest
 import scorex.util.Random
 import scorex.util.encode.Base16
@@ -17,8 +17,6 @@ import sigmastate.eval.Extensions._
 import sigmastate.eval._
 import special.collection.Coll
 import special.sigma.{Header, PreHeader}
-
-import scala.util.{Failure, Success}
 
 class ErgoUnsafeProverSpec extends FlatSpec with GeneratorDrivenPropertyChecks with Matchers with Generators {
 
@@ -47,10 +45,7 @@ class ErgoUnsafeProverSpec extends FlatSpec with GeneratorDrivenPropertyChecks w
         IndexedSeq(out)
       )
 
-      val signedTxFull = fullProver.sign(unsignedTx, ins.toIndexedSeq, IndexedSeq(), stateContext) match {
-        case Success(transaction) => transaction
-        case Failure(exception) => throw exception
-      }
+      val signedTxFull = fullProver.sign(unsignedTx, ins.toIndexedSeq, IndexedSeq(), stateContext).get
       val signedTxUnsafe = unsafeProver.prove(unsignedTx, extendedSecretKey.key)
 
       signedTxFull shouldEqual signedTxUnsafe
