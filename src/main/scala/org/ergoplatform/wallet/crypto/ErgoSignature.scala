@@ -25,7 +25,7 @@ object ErgoSignature {
     val s = genCommitment(pk, w) ++ msg
     val c = BigInt(BigIntegers.fromUnsignedByteArray(hf(s)))
     val z = (sk * c + y) % groupOrder
-    BigIntegers.asUnsignedByteArray(c.bigInteger) ++ BigIntegers.asUnsignedByteArray(z.bigInteger)
+    BigIntegers.asUnsignedByteArray(24, c.bigInteger) ++ BigIntegers.asUnsignedByteArray(32, z.bigInteger)
   }
 
   /**
