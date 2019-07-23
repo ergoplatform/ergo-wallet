@@ -51,6 +51,7 @@ object ErgoSignature {
 
   private def hf(x: Array[Byte]): Array[Byte] = Blake2b256.hash(x).take(24)
 
+  // Assembles a commitment of equivalent to `SigmaTree` form
   private def genCommitment(pk: EcPointType, w: EcPointType): Array[Byte] = {
     val prefix = Base16.decode("010027100108cd").get
     val postfix = Base16.decode("73000021").get
