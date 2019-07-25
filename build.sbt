@@ -14,6 +14,7 @@ resolvers ++= Seq(
 )
 
 val sigmaStateVersion = "ergobox-opt-60a3fed6-SNAPSHOT"
+
 val circeVersion = "0.10.0"
 
 libraryDependencies ++= Seq(
