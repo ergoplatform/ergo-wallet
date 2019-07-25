@@ -30,7 +30,7 @@ trait BoxSelector {
              targetAssets: Map[ModifierId, Long]): Option[BoxSelector.BoxSelectionResult]
 
   protected def formChangeBoxes(changeBalance: Long,
-                              changeBoxesAssets: Seq[mutable.Map[ModifierId, Long]]): Option[Seq[(Long, Map[ModifierId, Long])]] = {
+                                changeBoxesAssets: Seq[mutable.Map[ModifierId, Long]]): Option[Seq[(Long, Map[ModifierId, Long])]] = {
     //at least 1 ergo token should be assigned per a created box
     if (changeBoxesAssets.size > changeBalance) {
       None

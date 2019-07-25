@@ -25,13 +25,14 @@ class DustCollectingBoxSelector(maxInputs: Int, optimalInputs: Int) extends BoxS
                       targetBalance: Long,
                       targetAssets: Map[ModifierId, Long]): Option[BoxSelector.BoxSelectionResult] = {
     DefaultBoxSelector.select(inputBoxes, filterFn, targetBalance, targetAssets).flatMap { initialSelection =>
+      val tail = inputBoxes.take(maxInputs * 3).toSeq
       if (initialSelection.boxes.length > maxInputs) {
-        compress(initialSelection, targetBalance, targetAssets)
+        replace(initialSelection, tail, targetBalance, targetAssets)
       } else Some(initialSelection)
-    }.flatMap { afterCompression =>
-      if (afterCompression.boxes.length > maxInputs) {
-        replace(afterCompression, inputBoxes, targetBalance, targetAssets)
-      } else Some(afterCompression)
+    }.flatMap { afterReplacement =>
+      if (afterReplacement.boxes.length > maxInputs) {
+        compress(afterReplacement, targetBalance, targetAssets)
+      } else Some(afterReplacement)
     }
   }
 
@@ -65,10 +66,10 @@ class DustCollectingBoxSelector(maxInputs: Int, optimalInputs: Int) extends BoxS
   }
 
   def replace(bsr: BoxSelectionResult,
-              boxes: Iterator[TrackedBox],
+              tail: Seq[TrackedBox],
               targetBalance: Long,
               targetAssets: Map[ModifierId, Long]): Option[BoxSelectionResult] = {
-    val bigBoxes = boxes.take(maxInputs * 3).toSeq.sortBy(-_.value).map(_.box)
+    val bigBoxes = tail.sortBy(-_.value).map(_.box)
     val boxesToThrowAway = bsr.boxes.filter(!_.additionalTokens.toArray.map(_._1).exists(tid => targetAssets.keySet.contains(scorex.util.bytesToId(tid))))
     val sorted = boxesToThrowAway.sortBy(_.value)
 
@@ -87,9 +88,7 @@ class DustCollectingBoxSelector(maxInputs: Int, optimalInputs: Int) extends BoxS
             collected = collected + b.value
             collected <= cand.value
           }
-          if (dropped.length > 1) {
-            replaceStep(cs, remain, (currentOps._1 :+ cand, currentOps._2 ++ dropped))
-          } else currentOps
+          replaceStep(cs, remain, (currentOps._1 :+ cand, currentOps._2 ++ dropped))
       }
     }
 

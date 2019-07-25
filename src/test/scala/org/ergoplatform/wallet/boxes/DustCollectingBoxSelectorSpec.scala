@@ -37,37 +37,60 @@ class DustCollectingBoxSelectorSpec extends PropSpec with Matchers {
 
   property("replace() - no candidates") {
     val selector = new DustCollectingBoxSelector(3, 2)
-
     val inputValues = Seq(100L, 1L, 2L, 200L, 1000L)
     val targetBalance = 1303
-
     val boxSelectionResult = BoxSelectionResult(inputValues.map(box), Seq())
-    val res = selector.replace(boxSelectionResult, Seq().toIterator, targetBalance, Map()).get
+    val res = selector.replace(boxSelectionResult, Seq(), targetBalance, Map()).get
     res.boxes.map(_.value) shouldBe inputValues
   }
 
   property("replace() done - partial replacement") {
     val selector = new DustCollectingBoxSelector(3, 2)
-
     val inputValues = Seq(100L, 1L, 2L, 200L, 1000L)
     val targetBalance = 1303
-
     val boxSelectionResult = BoxSelectionResult(inputValues.map(box), Seq())
-    val res = selector.replace(boxSelectionResult, Seq(trackedBox(300), trackedBox(200)).toIterator, targetBalance, Map()).get
+    val res = selector.replace(boxSelectionResult, Seq(trackedBox(300), trackedBox(200)), targetBalance, Map()).get
     res.boxes.length shouldBe 3
     res.boxes.map(_.value) shouldBe Seq(200L, 1000L, 300L)
   }
 
   property("replace() done - full replacement") {
     val selector = new DustCollectingBoxSelector(3, 2)
-
     val inputValues = Seq(100L, 1L, 2L, 200L, 1000L)
     val targetBalance = 1303
-
     val boxSelectionResult = BoxSelectionResult(inputValues.map(box), Seq())
-    val res = selector.replace(boxSelectionResult, Seq(trackedBox(2000)).toIterator, targetBalance, Map()).get
+    val res = selector.replace(boxSelectionResult, Seq(trackedBox(2000)), targetBalance, Map()).get
     res.boxes.length shouldBe 1
     res.boxes.map(_.value) shouldBe Seq(2000L)
+  }
+
+  property("compact() and replace() under select()"){
+    val selector = new DustCollectingBoxSelector(3, 3)
+    val inputValues = (1 to 10).map(v => trackedBox(v))
+
+    {
+      val targetBalance = 6
+      val res = selector.select(inputValues.toIterator, noFilter, targetBalance, Map()).get
+      res.boxes.map(_.value) shouldBe Seq(1, 2, 3)
+    }
+
+    {
+      val targetBalance = 17
+      val res = selector.select(inputValues.toIterator, noFilter, targetBalance, Map()).get
+      res.boxes.map(_.value) shouldBe Seq(10, 9, 8)
+    }
+
+    {
+      val targetBalance = 25
+      val res = selector.select(inputValues.toIterator, noFilter, targetBalance, Map()).get
+      res.boxes.map(_.value) shouldBe Seq(10, 9, 8)
+    }
+
+    {
+      val targetBalance = 26
+      val res = selector.select(inputValues.toIterator, noFilter, targetBalance, Map()).get
+      res.boxes.map(_.value) shouldBe Seq(10, 9, 8)
+    }
   }
 
 }
