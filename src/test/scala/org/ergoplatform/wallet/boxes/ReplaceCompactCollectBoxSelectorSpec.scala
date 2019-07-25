@@ -6,7 +6,7 @@ import org.scalatest.{Matchers, PropSpec}
 import sigmastate.Values
 import sigmastate.Values.SigmaPropValue
 
-class DustCollectingBoxSelectorSpec extends PropSpec with Matchers {
+class ReplaceCompactCollectBoxSelectorSpec extends PropSpec with Matchers {
 
   private val noFilter: TrackedBox => Boolean = _ => true
   val parentTx = ErgoLikeTransaction(IndexedSeq(), IndexedSeq())
@@ -17,7 +17,7 @@ class DustCollectingBoxSelectorSpec extends PropSpec with Matchers {
   def trackedBox(value:Long) = TrackedBox(parentTx, 0, None, box(value), BoxCertainty.Certain)
 
   property("compress() done propery") {
-    val selector = new DustCollectingBoxSelector(3, 2)
+    val selector = new ReplaceCompactCollectBoxSelector(3, 2)
 
     val inputValues = Seq(100L, 1L, 2L, 200L, 1000L)
     val targetBalance = 1300
@@ -35,7 +35,7 @@ class DustCollectingBoxSelectorSpec extends PropSpec with Matchers {
   }
 
   property("replace() - no candidates") {
-    val selector = new DustCollectingBoxSelector(3, 2)
+    val selector = new ReplaceCompactCollectBoxSelector(3, 2)
     val inputValues = Seq(100L, 1L, 2L, 200L, 1000L)
     val targetBalance = 1303
     val boxSelectionResult = BoxSelectionResult(inputValues.map(box), Seq())
@@ -44,7 +44,7 @@ class DustCollectingBoxSelectorSpec extends PropSpec with Matchers {
   }
 
   property("replace() done - partial replacement") {
-    val selector = new DustCollectingBoxSelector(3, 2)
+    val selector = new ReplaceCompactCollectBoxSelector(3, 2)
     val inputValues = Seq(100L, 1L, 2L, 200L, 1000L)
     val targetBalance = 1303
     val boxSelectionResult = BoxSelectionResult(inputValues.map(box), Seq())
@@ -54,7 +54,7 @@ class DustCollectingBoxSelectorSpec extends PropSpec with Matchers {
   }
 
   property("replace() done - full replacement") {
-    val selector = new DustCollectingBoxSelector(3, 2)
+    val selector = new ReplaceCompactCollectBoxSelector(3, 2)
     val inputValues = Seq(100L, 1L, 2L, 200L, 1000L)
     val targetBalance = 1303
     val boxSelectionResult = BoxSelectionResult(inputValues.map(box), Seq())
@@ -64,7 +64,7 @@ class DustCollectingBoxSelectorSpec extends PropSpec with Matchers {
   }
 
   property("compact() and replace() under select()"){
-    val selector = new DustCollectingBoxSelector(3, 3)
+    val selector = new ReplaceCompactCollectBoxSelector(3, 3)
     val inputValues = (1 to 10).map(v => trackedBox(v))
 
     {
