@@ -8,6 +8,18 @@ import scala.annotation.tailrec
 import scala.collection.mutable
 
 class ReplaceCompactCollectBoxSelector(maxInputs: Int, optimalInputs: Int) extends BoxSelector {
+
+  def calcChange(boxes: Seq[ErgoBox], targetBalance: Long, targetAssets: Map[ModifierId, Long]): Option[BoxSelectionResult] = {
+    val compactedBalance = boxes.map(_.value).sum
+    val compactedAssets = mutable.Map[ModifierId, Long]()
+    BoxSelector.mergeAssetsMut(compactedAssets, boxes.map(BoxSelector.assetMap): _*)
+
+    subtractAssetsMut(compactedAssets, targetAssets)
+    val changeBoxesAssets: Seq[mutable.Map[ModifierId, Long]] = compactedAssets.grouped(ErgoBox.MaxTokens).toSeq
+    val changeBalance = compactedBalance - targetBalance
+    formChangeBoxes(changeBalance, changeBoxesAssets).map(changeBoxes => BoxSelectionResult(boxes, changeBoxes))
+  }
+
   /**
     * A method which is selecting boxes to spend in order to collect needed amounts of ergo tokens and assets.
     *
@@ -44,17 +56,7 @@ class ReplaceCompactCollectBoxSelector(maxInputs: Int, optimalInputs: Int) exten
           val dust = tail.sortBy(_.value).take(diff).filter(b => !afterCompactionIds.contains(b.boxId))
 
           val boxes = afterCompaction.boxes ++ dust.map(_.box)
-          //todo: refactor below
-          val compactedBoxes = boxes
-          val compactedBalance = compactedBoxes.map(_.value).sum
-          val compactedAssets = mutable.Map[ModifierId, Long]()
-          BoxSelector.mergeAssetsMut(compactedAssets, compactedBoxes.map(BoxSelector.assetMap): _*)
-
-          subtractAssetsMut(compactedAssets, targetAssets)
-          val changeBoxesAssets: Seq[mutable.Map[ModifierId, Long]] = compactedAssets.grouped(ErgoBox.MaxTokens).toSeq
-          val changeBalance = compactedBalance - targetBalance
-          formChangeBoxes(changeBalance, changeBoxesAssets).map(changeBoxes => BoxSelectionResult(compactedBoxes, changeBoxes))
-
+          calcChange(boxes, targetBalance, targetAssets)
         } else Some(afterCompaction)
       }
     }
@@ -75,17 +77,8 @@ class ReplaceCompactCollectBoxSelector(maxInputs: Int, optimalInputs: Int) exten
         thrownValue = thrownValue + b.value
         thrownValue <= diff
       }
-
-      //todo: refactor below
       val compactedBoxes = boxes.filter(b => !thrownBoxes.contains(b))
-      val compactedBalance = compactedBoxes.map(_.value).sum
-      val compactedAssets = mutable.Map[ModifierId, Long]()
-      BoxSelector.mergeAssetsMut(compactedAssets, compactedBoxes.map(BoxSelector.assetMap): _*)
-
-      subtractAssetsMut(compactedAssets, targetAssets)
-      val changeBoxesAssets: Seq[mutable.Map[ModifierId, Long]] = compactedAssets.grouped(ErgoBox.MaxTokens).toSeq
-      val changeBalance = compactedBalance - targetBalance
-      formChangeBoxes(changeBalance, changeBoxesAssets).map(changeBoxes => BoxSelectionResult(compactedBoxes, changeBoxes))
+      calcChange(compactedBoxes, targetBalance, targetAssets)
     } else Some(bsr)
   }
 
@@ -118,16 +111,9 @@ class ReplaceCompactCollectBoxSelector(maxInputs: Int, optimalInputs: Int) exten
 
     val (toAdd, toDrop) = replaceStep(bigBoxes, sorted, (Seq(), Seq()))
     if (toAdd.nonEmpty) {
-      //todo: refactor below
       val compactedBoxes = bsr.boxes.filter(b => !toDrop.contains(b)) ++ toAdd
-      val compactedBalance = compactedBoxes.map(_.value).sum
-      val compactedAssets = mutable.Map[ModifierId, Long]()
-      BoxSelector.mergeAssetsMut(compactedAssets, compactedBoxes.map(BoxSelector.assetMap): _*)
-
-      subtractAssetsMut(compactedAssets, targetAssets)
-      val changeBoxesAssets: Seq[mutable.Map[ModifierId, Long]] = compactedAssets.grouped(ErgoBox.MaxTokens).toSeq
-      val changeBalance = compactedBalance - targetBalance
-      formChangeBoxes(changeBalance, changeBoxesAssets).map(changeBoxes => BoxSelectionResult(compactedBoxes, changeBoxes))
+      calcChange(compactedBoxes, targetBalance, targetAssets)
     } else Some(bsr)
   }
+
 }

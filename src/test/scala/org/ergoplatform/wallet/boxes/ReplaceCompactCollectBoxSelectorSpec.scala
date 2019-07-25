@@ -92,4 +92,15 @@ class ReplaceCompactCollectBoxSelectorSpec extends PropSpec with Matchers {
     }
   }
 
+  property("dust collection under select()") {
+    val optimalInputs = 5
+    val selector = new ReplaceCompactCollectBoxSelector(20, optimalInputs)
+    val inputValues = (1 to 10).map(v => trackedBox(v))
+
+    {
+      val targetBalance = 6
+      val res = selector.select(inputValues.toIterator, noFilter, targetBalance, Map()).get
+      res.boxes.length shouldBe optimalInputs
+    }
+  }
 }
