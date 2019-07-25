@@ -45,7 +45,7 @@ class DustCollectingBoxSelector(maxInputs: Int, optimalInputs: Int) extends BoxS
     val boxesToThrowAway = boxes.filter(!_.additionalTokens.toArray.map(_._1).exists(tid => targetAssets.keySet.contains(scorex.util.bytesToId(tid))))
     val sorted = boxesToThrowAway.sortBy(_.value)
 
-    if (diff > sorted.head.value) {
+    if (diff >= sorted.head.value) {
       var thrownValue = 0L
       val thrownBoxes = sorted.takeWhile { b =>
         thrownValue = thrownValue + b.value

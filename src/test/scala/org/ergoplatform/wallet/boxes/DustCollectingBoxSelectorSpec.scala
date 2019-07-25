@@ -34,7 +34,6 @@ class DustCollectingBoxSelectorSpec extends PropSpec with Matchers {
     sr shouldBe res
   }
 
-
   property("replace() - no candidates") {
     val selector = new DustCollectingBoxSelector(3, 2)
     val inputValues = Seq(100L, 1L, 2L, 200L, 1000L)
@@ -87,7 +86,7 @@ class DustCollectingBoxSelectorSpec extends PropSpec with Matchers {
     }
 
     {
-      val targetBalance = 26
+      val targetBalance = 27
       val res = selector.select(inputValues.toIterator, noFilter, targetBalance, Map()).get
       res.boxes.map(_.value) shouldBe Seq(10, 9, 8)
     }
