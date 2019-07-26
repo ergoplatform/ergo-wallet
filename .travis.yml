@@ -8,10 +8,10 @@ branches:
     - sigma-v2.1
 scala:
   - 2.12.8
-cache:
-  directories:
-    - $HOME/.ivy2/cache
-    - $HOME/.sbt
+#cache:
+#  directories:
+#    - $HOME/.ivy2/cache
+#    - $HOME/.sbt
 script:
   - sbt clean test
 after_success:
