@@ -1,6 +1,7 @@
 package org.ergoplatform.wallet.boxes
 
 import org.ergoplatform.ErgoBox
+import org.ergoplatform.wallet.boxes.BoxSelector.{BoxSelectionResult, subtractAssetsMut}
 import scorex.util.ModifierId
 
 import scala.collection.mutable
@@ -28,6 +29,19 @@ trait BoxSelector {
              filterFn: TrackedBox => Boolean,
              targetBalance: Long,
              targetAssets: Map[ModifierId, Long]): Option[BoxSelector.BoxSelectionResult]
+
+  protected def calcChange(boxes: Seq[ErgoBox],
+                 targetBalance: Long,
+                 targetAssets: Map[ModifierId, Long]): Option[BoxSelectionResult] = {
+    val compactedBalance = boxes.map(_.value).sum
+    val compactedAssets = mutable.Map[ModifierId, Long]()
+    BoxSelector.mergeAssetsMut(compactedAssets, boxes.map(BoxSelector.assetMap): _*)
+
+    subtractAssetsMut(compactedAssets, targetAssets)
+    val changeBoxesAssets: Seq[mutable.Map[ModifierId, Long]] = compactedAssets.grouped(ErgoBox.MaxTokens).toSeq
+    val changeBalance = compactedBalance - targetBalance
+    formChangeBoxes(changeBalance, changeBoxesAssets).map(changeBoxes => BoxSelectionResult(boxes, changeBoxes))
+  }
 
   protected def formChangeBoxes(changeBalance: Long,
                                 changeBoxesAssets: Seq[mutable.Map[ModifierId, Long]]): Option[Seq[(Long, Map[ModifierId, Long])]] = {

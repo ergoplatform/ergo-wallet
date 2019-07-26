@@ -9,17 +9,6 @@ import scala.collection.mutable
 
 class ReplaceCompactCollectBoxSelector(maxInputs: Int, optimalInputs: Int) extends BoxSelector {
 
-  def calcChange(boxes: Seq[ErgoBox], targetBalance: Long, targetAssets: Map[ModifierId, Long]): Option[BoxSelectionResult] = {
-    val compactedBalance = boxes.map(_.value).sum
-    val compactedAssets = mutable.Map[ModifierId, Long]()
-    BoxSelector.mergeAssetsMut(compactedAssets, boxes.map(BoxSelector.assetMap): _*)
-
-    subtractAssetsMut(compactedAssets, targetAssets)
-    val changeBoxesAssets: Seq[mutable.Map[ModifierId, Long]] = compactedAssets.grouped(ErgoBox.MaxTokens).toSeq
-    val changeBalance = compactedBalance - targetBalance
-    formChangeBoxes(changeBalance, changeBoxesAssets).map(changeBoxes => BoxSelectionResult(boxes, changeBoxes))
-  }
-
   /**
     * A method which is selecting boxes to spend in order to collect needed amounts of ergo tokens and assets.
     *
