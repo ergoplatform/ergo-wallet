@@ -1,13 +1,28 @@
 package org.ergoplatform.wallet.boxes
 
 import org.ergoplatform.ErgoBox
-import org.ergoplatform.wallet.boxes.BoxSelector.{BoxSelectionResult, subtractAssetsMut}
+import org.ergoplatform.wallet.boxes.BoxSelector.BoxSelectionResult
 import scorex.util.ModifierId
 
 import scala.annotation.tailrec
-import scala.collection.mutable
 
+/**
+  * A box selector which is parameterized by maximum number of inputs a transaction can have, and optimal number of inputs.
+  *
+  * Say, the selector is given boxes denoted by their values (1,2,3,4,...10). Then the selector is working as follows:
+  *
+  * 1) the selector first picking up boxes in given order (1,2,3,4,...) by using DefaultBoxSelector
+  * 2) if number of inputs exceeds the limit, the selector is sorting remaining boxes(actually, only 4*maximum inputs of them) by value in descending order and replaces small-value boxes in the inputs by big-value from the tail (1,2,3,4 => 10)
+  * 3) if the number of inputs still exceeds the limit, the selector is trying to throw away the dust if possible. E.g. if inputs are (100, 200, 1, 2, 1000), target value is 1300 and maximum number of inputs is 3, the selector kicks out (1, 2)
+  * 4) if number of inputs after the previous steps is below optimal, the selector is trying to append the dust, by sorting remaining boxes in ascending order and appending them till optimal number of inputs.
+  *
+  * @param maxInputs     - maximum number of inputs a transaction can have
+  * @param optimalInputs - optimal number of inputs, when transaction is still not expensive. The box selector is
+  *                      trying to add dust if a transaction has less inputs than this.
+  */
 class ReplaceCompactCollectBoxSelector(maxInputs: Int, optimalInputs: Int) extends BoxSelector {
+
+  val ScanDepthFactor = 4
 
   /**
     * A method which is selecting boxes to spend in order to collect needed amounts of ergo tokens and assets.
@@ -26,29 +41,33 @@ class ReplaceCompactCollectBoxSelector(maxInputs: Int, optimalInputs: Int) exten
                       targetBalance: Long,
                       targetAssets: Map[ModifierId, Long]): Option[BoxSelector.BoxSelectionResult] = {
     DefaultBoxSelector.select(inputBoxes, filterFn, targetBalance, targetAssets).flatMap { initialSelection =>
-      val tail = inputBoxes.take(maxInputs * 3).toSeq
-
-      val afterCompactionOpt = (if (initialSelection.boxes.length > maxInputs) {
+      val tail = inputBoxes.take(maxInputs * ScanDepthFactor).toSeq
+      (if (initialSelection.boxes.length > maxInputs) {
         replace(initialSelection, tail, targetBalance, targetAssets)
       } else Some(initialSelection)).flatMap { afterReplacement =>
         if (afterReplacement.boxes.length > maxInputs) {
           compress(afterReplacement, targetBalance, targetAssets)
         } else Some(afterReplacement)
-      }
-
-      afterCompactionOpt.flatMap{ afterCompaction =>
+      }.flatMap { afterCompaction =>
         if (afterCompaction.boxes.length > maxInputs) {
           None
-        } else if(afterCompaction.boxes.length < optimalInputs) {
-          val diff = optimalInputs - afterCompaction.boxes.length
-          val afterCompactionIds = afterCompaction.boxes.map(_.id).map(scorex.util.bytesToId)
-          val dust = tail.sortBy(_.value).take(diff).filter(b => !afterCompactionIds.contains(b.boxId))
-
-          val boxes = afterCompaction.boxes ++ dust.map(_.box)
-          calcChange(boxes, targetBalance, targetAssets)
+        } else if (afterCompaction.boxes.length < optimalInputs) {
+          collectDust(afterCompaction, tail, targetBalance, targetAssets)
         } else Some(afterCompaction)
       }
     }
+  }
+
+  def collectDust(bsr: BoxSelectionResult,
+                  tail: Seq[TrackedBox],
+                  targetBalance: Long,
+                  targetAssets: Map[ModifierId, Long]): Option[BoxSelectionResult] = {
+    val diff = optimalInputs - bsr.boxes.length
+    val afterCompactionIds = bsr.boxes.map(_.id).map(scorex.util.bytesToId)
+    val dust = tail.sortBy(_.value).take(diff).filter(b => !afterCompactionIds.contains(b.boxId))
+
+    val boxes = bsr.boxes ++ dust.map(_.box)
+    calcChange(boxes, targetBalance, targetAssets)
   }
 
   def compress(bsr: BoxSelectionResult,
