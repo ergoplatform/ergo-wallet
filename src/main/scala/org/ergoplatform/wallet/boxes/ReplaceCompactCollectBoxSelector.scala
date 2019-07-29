@@ -22,7 +22,7 @@ import scala.annotation.tailrec
   */
 class ReplaceCompactCollectBoxSelector(maxInputs: Int, optimalInputs: Int) extends BoxSelector {
 
-  val ScanDepthFactor = 4
+  val ScanDepthFactor = 10
 
   /**
     * A method which is selecting boxes to spend in order to collect needed amounts of ergo tokens and assets.
@@ -58,7 +58,7 @@ class ReplaceCompactCollectBoxSelector(maxInputs: Int, optimalInputs: Int) exten
     }
   }
 
-  def collectDust(bsr: BoxSelectionResult,
+  protected[boxes] def collectDust(bsr: BoxSelectionResult,
                   tail: Seq[TrackedBox],
                   targetBalance: Long,
                   targetAssets: Map[ModifierId, Long]): Option[BoxSelectionResult] = {
@@ -70,7 +70,7 @@ class ReplaceCompactCollectBoxSelector(maxInputs: Int, optimalInputs: Int) exten
     calcChange(boxes, targetBalance, targetAssets)
   }
 
-  def compress(bsr: BoxSelectionResult,
+  protected[boxes] def compress(bsr: BoxSelectionResult,
                targetBalance: Long,
                targetAssets: Map[ModifierId, Long]): Option[BoxSelectionResult] = {
     val boxes = bsr.boxes
@@ -90,7 +90,7 @@ class ReplaceCompactCollectBoxSelector(maxInputs: Int, optimalInputs: Int) exten
     } else Some(bsr)
   }
 
-  def replace(bsr: BoxSelectionResult,
+  protected[boxes] def replace(bsr: BoxSelectionResult,
               tail: Seq[TrackedBox],
               targetBalance: Long,
               targetAssets: Map[ModifierId, Long]): Option[BoxSelectionResult] = {
