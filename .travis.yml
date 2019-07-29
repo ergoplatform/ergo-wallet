@@ -8,7 +8,7 @@ addons:
       - ca-certificates-java
       - curl
 jdk:
-  - oraclejdk9
+  - openjdk9
 branches:
   only:
     - master
