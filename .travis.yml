@@ -3,6 +3,7 @@ language: scala
 addons:
   apt:
     packages:
+      - ca-cacert
       - ca-certificates
       - ca-certificates-java
 jdk:
