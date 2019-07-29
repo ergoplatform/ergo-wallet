@@ -4,6 +4,8 @@ addons:
   apt:
     packages:
       - ca-certificates
+      - ca-certificates-java
+      - ca-cert
 jdk:
   - oraclejdk9
 branches:
