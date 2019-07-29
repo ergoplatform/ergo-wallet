@@ -4,7 +4,7 @@ name := "ergo-wallet"
 
 organization := "org.ergoplatform"
 
-scalaVersion := "2.12.8"
+scalaVersion := "2.13.0"
 
 resolvers ++= Seq(
   "Sonatype Public" at "https://oss.sonatype.org/content/groups/public/",
