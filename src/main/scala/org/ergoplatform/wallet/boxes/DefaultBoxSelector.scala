@@ -15,33 +15,6 @@ object DefaultBoxSelector extends BoxSelector {
 
   import BoxSelector._
 
-  private def formChangeBoxes(changeBalance: Long,
-                              changeBoxesAssets: Seq[mutable.Map[ModifierId, Long]]): Option[Seq[(Long, Map[ModifierId, Long])]] = {
-    //at least 1 ergo token should be assigned per a created box
-    if (changeBoxesAssets.size > changeBalance) {
-      None
-    } else {
-      val changeBoxes = if (changeBoxesAssets.nonEmpty) {
-        val baseChangeBalance = changeBalance / changeBoxesAssets.size
-
-        val changeBoxesNoBalanceAdjusted = changeBoxesAssets.map { a =>
-          baseChangeBalance -> a.toMap
-        }
-
-        val modifiedBoxOpt = changeBoxesNoBalanceAdjusted.headOption.map { firstBox =>
-          (changeBalance - baseChangeBalance * (changeBoxesAssets.size - 1)) -> firstBox._2
-        }
-
-        modifiedBoxOpt.toSeq ++ changeBoxesNoBalanceAdjusted.tail
-      } else if (changeBalance > 0) {
-        Seq(changeBalance -> Map.empty[ModifierId, Long])
-      } else {
-        Seq.empty
-      }
-      Some(changeBoxes)
-    }
-  }
-
   override def select(inputBoxes: Iterator[TrackedBox],
                       externalFilter: TrackedBox => Boolean,
                       targetBalance: Long,
@@ -75,7 +48,8 @@ object DefaultBoxSelector extends BoxSelector {
     //first, we pick all the boxes until ergo target balance is met
     if (pickBoxes(inputBoxes, externalFilter, balanceMet)) {
       //then we pick boxes until all the target asset amounts are met (we pick only boxes containing needed assets).
-      //If this condition is satisfied on the previous step, we will do one extra check (which is not that much).
+      //If this condition is satisfied on the previous step, we will do one extra call to pickBoxes
+      //with no touching the iterator (which is not that much).
       if (pickBoxes(inputBoxes, bc => externalFilter(bc) && bc.assets.exists { case (id, _) =>
         val targetAmt = targetAssets.getOrElse(id, 0L)
         lazy val currentAmt = currentAssets.getOrElse(id, 0L)
