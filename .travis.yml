@@ -1,14 +1,7 @@
 sudo: false
 language: scala
-addons:
-  apt:
-    packages:
-      - ca-cacert
-      - ca-certificates
-      - ca-certificates-java
-      - curl
 jdk:
-  - openjdk9
+  - openjdk11
 branches:
   only:
     - master
@@ -19,10 +12,6 @@ cache:
   directories:
     - $HOME/.ivy2/cache
     - $HOME/.sbt
-before_script:
-    - curl -v https://oss.sonatype.org/content/groups/public/org/scorexfoundation/sigma-state_2.12/master-0e75c9b0-SNAPSHOT/sigma-state_2.12-master-0e75c9b0-SNAPSHOT.pom
-    - curl -v https://oss.sonatype.org/content/repositories/releases/org/scorexfoundation/sigma-state_2.12/master-0e75c9b0-SNAPSHOT/sigma-state_2.12-master-0e75c9b0-SNAPSHOT.pom
-    - curl -v https://oss.sonatype.org/content/repositories/snapshots/org/scorexfoundation/sigma-state_2.12/master-0e75c9b0-SNAPSHOT/sigma-state_2.12-master-0e75c9b0-SNAPSHOT.pom
 script:
   - sbt clean test
 after_success:
