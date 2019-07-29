@@ -12,8 +12,6 @@ cache:
   directories:
     - $HOME/.ivy2/cache
     - $HOME/.sbt
-before_script:
-    - apt-get install -yqq ca-certificates
 script:
   - sbt clean test
 after_success:
