@@ -41,7 +41,7 @@ class ReplaceCompactCollectBoxSelector(maxInputs: Int, optimalInputs: Int) exten
                       targetBalance: Long,
                       targetAssets: Map[ModifierId, Long]): Option[BoxSelector.BoxSelectionResult] = {
     DefaultBoxSelector.select(inputBoxes, filterFn, targetBalance, targetAssets).flatMap { initialSelection =>
-      val tail = inputBoxes.take(maxInputs * ScanDepthFactor).toSeq
+      val tail = inputBoxes.take(maxInputs * ScanDepthFactor).filter(filterFn).toSeq
       (if (initialSelection.boxes.length > maxInputs) {
         replace(initialSelection, tail, targetBalance, targetAssets)
       } else Some(initialSelection)).flatMap { afterReplacement =>
