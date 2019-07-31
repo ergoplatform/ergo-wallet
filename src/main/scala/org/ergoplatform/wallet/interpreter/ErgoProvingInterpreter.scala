@@ -56,16 +56,13 @@ class ErgoProvingInterpreter(val secretKeys: IndexedSeq[ExtendedSecretKey], para
           dataBoxes.size * params.dataInputCost +
           unsignedTx.outputCandidates.size * params.outputCost
 
-          val context = new ErgoLikeContext(
-            stateContext.currentHeight,
-            ErgoInterpreter.avlTreeFromDigest(stateContext.previousStateDigest),
-            stateContext.lastBlockMinerPk,
+          val context = new ErgoLikeContext(ErgoInterpreter.avlTreeFromDigest(stateContext.previousStateDigest),
             stateContext.sigmaLastHeaders,
             stateContext.sigmaPreHeader,
             transactionContext.dataBoxes,
             transactionContext.boxesToSpend,
             transactionContext.spendingTransaction,
-            transactionContext.self,
+            transactionContext.selfIndex,
             ContextExtension.empty,
             ValidationRules.currentSettings,
             params.maxBlockCost,

@@ -8,12 +8,6 @@ import special.collection.Coll
   */
 trait ErgoLikeStateContext {
 
-  // todo remove from ErgoLikeContext and from ErgoStateContext
-  /**
-    * @return Height of a last block.
-    */
-  def currentHeight: Int
-
   /**
     * @return fixed number (10 in Ergo) of last block headers
     */
@@ -29,10 +23,4 @@ trait ErgoLikeStateContext {
     * @return returns pre-header (header without certain fields) of the current block
     */
   def sigmaPreHeader: special.sigma.PreHeader
-
-  // todo remove from ErgoLikeContext and from ErgoStateContext
-  /**
-    * @return Miner's public key of the current block (sigmaPreHeader)
-    */
-  def lastBlockMinerPk: Array[Byte]
 }

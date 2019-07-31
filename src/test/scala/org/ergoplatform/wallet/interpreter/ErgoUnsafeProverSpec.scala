@@ -13,8 +13,10 @@ import scorex.util.Random
 import scorex.util.encode.Base16
 import sigmastate.Values.SigmaPropValue
 import sigmastate.basics.DLogProtocol.ProveDlog
+import special.sigma._
 import sigmastate.eval.Extensions._
 import sigmastate.eval._
+import sigmastate.interpreter.CryptoConstants
 import special.collection.Coll
 import special.sigma.{Header, PreHeader}
 
@@ -85,16 +87,20 @@ class ErgoUnsafeProverSpec extends FlatSpec with GeneratorDrivenPropertyChecks w
 
   private val stateContext = new ErgoLikeStateContext {
 
-    override def currentHeight: Int = 0
-
     override def sigmaLastHeaders: Coll[Header] = Colls.emptyColl
 
     override def previousStateDigest: ADDigest = Base16.decode("a5df145d41ab15a01e0cd3ffbab046f0d029e5412293072ad0f5827428589b9302")
       .fold(_ => throw new Error(s"Failed to parse genesisStateDigest"), ADDigest @@ _)
 
-    override def sigmaPreHeader: PreHeader = null
-
-    override def lastBlockMinerPk: Array[Byte] = null
+    override def sigmaPreHeader: PreHeader = CPreHeader(
+      version = 0,
+      parentId = ModifierIdBytes @@ Colls.emptyColl[Byte],
+      timestamp = 0,
+      nBits = 0,
+      height = 0,
+      minerPk = CGroupElement(CryptoConstants.dlogGroup.generator),
+      votes = MinerVotes @@ Colls.emptyColl[Byte]
+    )
   }
 
   private def propGen(dlog: ProveDlog): Gen[SigmaPropValue] = Gen.const(dlog.toSigmaProp)
