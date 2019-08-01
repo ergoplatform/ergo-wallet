@@ -94,12 +94,12 @@ class ErgoUnsafeProverSpec extends FlatSpec with GeneratorDrivenPropertyChecks w
 
     override def sigmaPreHeader: PreHeader = CPreHeader(
       version = 0,
-      parentId = ModifierIdBytes @@ Colls.emptyColl[Byte],
+      parentId = Colls.emptyColl[Byte],
       timestamp = 0,
       nBits = 0,
       height = 0,
       minerPk = CGroupElement(CryptoConstants.dlogGroup.generator),
-      votes = MinerVotes @@ Colls.emptyColl[Byte]
+      votes = Colls.emptyColl[Byte]
     )
   }
 
