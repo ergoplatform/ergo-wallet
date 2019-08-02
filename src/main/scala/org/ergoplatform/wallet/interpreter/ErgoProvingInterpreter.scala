@@ -6,11 +6,11 @@ import org.ergoplatform._
 import org.ergoplatform.validation.ValidationRules
 import org.ergoplatform.wallet.protocol.context.{ErgoLikeParameters, ErgoLikeStateContext, TransactionContext}
 import org.ergoplatform.wallet.secrets.ExtendedSecretKey
-import sigmastate.basics.DLogProtocol.{DLogProverInput, ProveDlog}
-import sigmastate.eval.{IRContext, RuntimeIRContext}
+import sigmastate.basics.DLogProtocol.{ProveDlog, DLogProverInput}
+import sigmastate.eval.{IRContext, CompiletimeIRContext}
 import sigmastate.interpreter.{ContextExtension, ProverInterpreter}
 
-import scala.util.{Failure, Success, Try}
+import scala.util.{Success, Failure, Try}
 
 /**
   * A class which is holding secrets and signing transactions.
@@ -90,8 +90,8 @@ class ErgoProvingInterpreter(val secretKeys: IndexedSeq[ExtendedSecretKey], para
 object ErgoProvingInterpreter {
 
   def apply(secrets: IndexedSeq[ExtendedSecretKey], params: ErgoLikeParameters): ErgoProvingInterpreter =
-    new ErgoProvingInterpreter(secrets, params)(new RuntimeIRContext)
+    new ErgoProvingInterpreter(secrets, params)(new CompiletimeIRContext)
 
   def apply(rootSecret: ExtendedSecretKey, params: ErgoLikeParameters): ErgoProvingInterpreter =
-    new ErgoProvingInterpreter(IndexedSeq(rootSecret), params)(new RuntimeIRContext)
+    new ErgoProvingInterpreter(IndexedSeq(rootSecret), params)(new CompiletimeIRContext)
 }
