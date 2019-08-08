@@ -13,7 +13,7 @@ resolvers ++= Seq(
   "Typesafe maven releases" at "http://repo.typesafe.com/typesafe/maven-releases/"
 )
 
-val sigmaStateVersion = "i573-ergolikectx-json-47a88e4e-SNAPSHOT"
+val sigmaStateVersion = "i573-ergolikectx-json-223890af-SNAPSHOT"
 val circeVersion = "0.10.0"
 
 libraryDependencies ++= Seq(
