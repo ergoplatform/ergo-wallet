@@ -59,13 +59,13 @@ class ErgoInterpreter(params: ErgoLikeParameters)(implicit IR: IRContext)
                       message: Array[Byte]): Try[VerificationResult] = {
 
     val varId = Constants.StorageIndexVarId
-    val hasEnoughTimeToBeSpent = context.preHeader.height - context.boxesToSpend(context.selfIndex).creationHeight >= Constants.StoragePeriod
+    val hasEnoughTimeToBeSpent = context.preHeader.height - context.self.creationHeight >= Constants.StoragePeriod
     //no proof provided and enough time since box creation to spend it
     if (hasEnoughTimeToBeSpent && proof.length == 0 && context.extension.values.contains(varId)) {
       Try {
         val idx = context.extension.values(varId).value.asInstanceOf[Short]
         val outputCandidate = context.spendingTransaction.outputCandidates(idx)
-        checkExpiredBox(context.boxesToSpend(context.selfIndex), outputCandidate, context.preHeader.height) -> Constants.StorageContractCost
+        checkExpiredBox(context.self, outputCandidate, context.preHeader.height) -> Constants.StorageContractCost
       }.recoverWith { case _ =>
         super.verify(env, exp, context, proof, message)
       }
