@@ -6,6 +6,7 @@ branches:
   only:
     - master
     - sigma-v2.1
+    - sigma-core-opt-one-jar
 scala:
   - 2.12.8
 cache:
