@@ -4,12 +4,10 @@ import org.ergoplatform.*;
 import org.ergoplatform.wallet.Utils;
 import org.ergoplatform.wallet.interface4j.crypto.ErgoUnsafeProver;
 import org.ergoplatform.wallet.secrets.ExtendedSecretKey;
-import org.junit.Test;
 import scorex.util.Random;
 
 public class CreateTransactionDemo {
 
-    @Test
     public void createTransaction() throws Exception {
         ErgoAddressEncoder encoder = new ErgoAddressEncoder((byte) 0x00);
 
