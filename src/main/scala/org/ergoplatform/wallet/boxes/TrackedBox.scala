@@ -17,7 +17,7 @@ import scorex.util.{ModifierId, bytesToId, idToBytes}
   * @param spendingHeightOpt  - Height of the spending transaction block in blockchain if known
   * @param box                - Underlying Ergo box
   * @param certainty          - Whether the box is definitely belongs to the user or not
-  * @param appId              - Identifier of the application the box refers to
+  * @param applicationId      - Identifier of the application the box refers to
   */
 final case class TrackedBox(creationTxId: ModifierId,
                             creationOutIndex: Short,
@@ -26,7 +26,7 @@ final case class TrackedBox(creationTxId: ModifierId,
                             spendingHeightOpt: Option[Int],
                             box: ErgoBox,
                             certainty: BoxCertainty,
-                            appId: Short) {
+                            applicationId: Short) {
 
   /**
     * Whether the box is spent or not
@@ -86,7 +86,7 @@ object TrackedBoxSerializer extends ErgoWalletSerializer[TrackedBox] {
     w.putOption(obj.spendingTxIdOpt)((bf, id) => bf.putBytes(idToBytes(id)))
     w.putOption(obj.spendingHeightOpt)(_.putInt(_))
     w.put(if (obj.certainty.certain) 0x01 else 0x00)
-    w.putShort(obj.appId)
+    w.putShort(obj.applicationId)
     ErgoBoxSerializer.serialize(obj.box, w)
   }
 
