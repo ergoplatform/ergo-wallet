@@ -17,6 +17,7 @@ import scorex.util.{ModifierId, bytesToId, idToBytes}
   * @param spendingHeightOpt  - Height of the spending transaction block in blockchain if known
   * @param box                - Underlying Ergo box
   * @param certainty          - Whether the box is definitely belongs to the user or not
+  * @param appId              - Identifier of the application the box refers to
   */
 final case class TrackedBox(creationTxId: ModifierId,
                             creationOutIndex: Short,
@@ -24,7 +25,8 @@ final case class TrackedBox(creationTxId: ModifierId,
                             spendingTxIdOpt: Option[ModifierId],
                             spendingHeightOpt: Option[Int],
                             box: ErgoBox,
-                            certainty: BoxCertainty) {
+                            certainty: BoxCertainty,
+                            appId: Short) {
 
   /**
     * Whether the box is spent or not
@@ -71,8 +73,8 @@ final case class TrackedBox(creationTxId: ModifierId,
 object TrackedBox {
 
   def apply(creationTx: ErgoLikeTransaction, creationOutIndex: Short, creationHeight: Option[Int],
-            box: ErgoBox, certainty: BoxCertainty): TrackedBox =
-    apply(creationTx.id, creationOutIndex, creationHeight, None, None, box, certainty)
+            box: ErgoBox, certainty: BoxCertainty, appId: Short): TrackedBox =
+    apply(creationTx.id, creationOutIndex, creationHeight, None, None, box, certainty, appId)
 }
 
 object TrackedBoxSerializer extends ErgoWalletSerializer[TrackedBox] {
@@ -84,6 +86,7 @@ object TrackedBoxSerializer extends ErgoWalletSerializer[TrackedBox] {
     w.putOption(obj.spendingTxIdOpt)((bf, id) => bf.putBytes(idToBytes(id)))
     w.putOption(obj.spendingHeightOpt)(_.putInt(_))
     w.put(if (obj.certainty.certain) 0x01 else 0x00)
+    w.putShort(obj.appId)
     ErgoBoxSerializer.serialize(obj.box, w)
   }
 
@@ -94,8 +97,10 @@ object TrackedBoxSerializer extends ErgoWalletSerializer[TrackedBox] {
     val spendingTxIdOpt = r.getOption(r.getBytes(Constants.ModifierIdLength)).map(bytesToId)
     val spendingHeightOpt = r.getOption(r.getInt())
     val certainty = if (r.getByte() == 0x01) BoxCertainty.Certain else BoxCertainty.Uncertain
+    val appId = r.getShort()
     val box = ErgoBoxSerializer.parse(r)
-    TrackedBox(creationTxId, creationOutIndex, inclusionHeightOpt, spendingTxIdOpt, spendingHeightOpt, box, certainty)
+    TrackedBox(
+      creationTxId, creationOutIndex, inclusionHeightOpt, spendingTxIdOpt, spendingHeightOpt, box, certainty, appId)
   }
 
 }
