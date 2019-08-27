@@ -8,6 +8,10 @@ import scorex.util.Random;
 
 public class CreateTransactionDemo {
 
+    /**
+     * A demo describing the process of creating simple payment transaction.
+     * Note, more complex transaction would require more steps which are not described in this demo.
+     */
     public void createTransaction() throws Exception {
         ErgoAddressEncoder encoder = new ErgoAddressEncoder((byte) 0x00);
 
