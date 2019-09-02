@@ -133,6 +133,6 @@ trait Generators {
     box <- ergoBoxGen
     certainty <- Gen.oneOf(Seq(BoxCertainty.Certain, BoxCertainty.Uncertain))
   } yield TrackedBox(
-    creationTxId, creationOutIndex, inclusionHeightOpt, spendingTxIdOpt, spendingHeightOpt, box, certainty)
+    creationTxId, creationOutIndex, inclusionHeightOpt, spendingTxIdOpt, spendingHeightOpt, box, certainty, 1)
 
 }
