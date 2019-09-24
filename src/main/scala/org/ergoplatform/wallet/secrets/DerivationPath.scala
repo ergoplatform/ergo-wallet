@@ -8,7 +8,7 @@ import scala.util.{Failure, Try}
 /**
   * HD key derivation path (see: https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki)
   */
-final case class DerivationPath(decodedPath: List[Int], publicBranch: Boolean) {
+final case class DerivationPath(decodedPath: Seq[Int], publicBranch: Boolean) {
 
   import DerivationPath._
 
@@ -66,7 +66,7 @@ object DerivationPathSerializer extends ErgoWalletSerializer[DerivationPath] {
   override def parse(r: Reader): DerivationPath = {
     val publicBranch = if (r.getByte() == 0x01) true else false
     val depth = r.getInt()
-    val path = (0 until depth).map(_ => Index.parseIndex(r.getBytes(4))).toList
+    val path = (0 until depth).map(_ => Index.parseIndex(r.getBytes(4)))
     DerivationPath(path, publicBranch)
   }
 
