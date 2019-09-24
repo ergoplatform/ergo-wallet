@@ -32,6 +32,7 @@ final class ExtendedSecretKey(val keyBytes: Array[Byte],
 
 object ExtendedSecretKey {
 
+  @scala.annotation.tailrec
   def deriveChildSecretKey(parentKey: ExtendedSecretKey, idx: Int): ExtendedSecretKey = {
     val keyCoded: Array[Byte] =
       if (Index.isHardened(idx)) (0x00: Byte) +: parentKey.keyBytes
