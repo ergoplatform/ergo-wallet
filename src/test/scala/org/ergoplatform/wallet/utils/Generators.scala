@@ -4,7 +4,7 @@ import org.ergoplatform.ErgoBox
 import org.ergoplatform.ErgoBox.{BoxId, NonMandatoryRegisterId, TokenId}
 import org.ergoplatform.wallet.boxes.{BoxCertainty, TrackedBox}
 import org.ergoplatform.wallet.mnemonic.{Mnemonic, WordList}
-import org.ergoplatform.wallet.secrets.{DerivationPath, Index}
+import org.ergoplatform.wallet.secrets.{DerivationPath, ExtendedSecretKey, Index}
 import org.ergoplatform.wallet.settings.{Constants, EncryptionSettings}
 import org.scalacheck.Arbitrary.arbByte
 import org.scalacheck.{Arbitrary, Gen}
@@ -123,6 +123,10 @@ trait Generators {
     indices <- Gen.listOf(Gen.oneOf(Seq(true, false))
       .flatMap(x => Gen.posNum[Int].map(i => if (x && allowHardened) Index.hardIndex(i) else i)))
   } yield DerivationPath(0 +: indices, isPublic)
+
+  def extendedSecretGen: Gen[ExtendedSecretKey] = for {
+    seed <- Gen.const(Constants.KeyLen).map(scorex.utils.Random.randomBytes)
+  } yield ExtendedSecretKey.deriveMasterKey(seed)
 
   def trackedBoxGen: Gen[TrackedBox] = for {
     creationTxId <- modIdGen
