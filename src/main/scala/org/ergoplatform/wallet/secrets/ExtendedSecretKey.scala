@@ -4,9 +4,9 @@ import java.math.BigInteger
 import java.util
 
 import org.bouncycastle.util.BigIntegers
+import org.ergoplatform.wallet.Constants
 import org.ergoplatform.wallet.crypto.HmacSHA512
 import org.ergoplatform.wallet.serialization.ErgoWalletSerializer
-import org.ergoplatform.wallet.settings.Constants
 import scorex.util.serialization.{Reader, Writer}
 import sigmastate.basics.DLogProtocol.DLogProverInput
 import sigmastate.interpreter.CryptoConstants
@@ -68,18 +68,20 @@ object ExtendedSecretKey {
 
 object ExtendedSecretKeySerializer extends ErgoWalletSerializer[ExtendedSecretKey] {
 
+  import scorex.util.Extensions._
+
   override def serialize(obj: ExtendedSecretKey, w: Writer): Unit = {
     w.putBytes(obj.keyBytes)
     w.putBytes(obj.chainCode)
     val pathBytes = DerivationPathSerializer.toBytes(obj.path)
-    w.putInt(pathBytes.length)
+    w.putUInt(pathBytes.length)
     w.putBytes(pathBytes)
   }
 
   override def parse(r: Reader): ExtendedSecretKey = {
     val keyBytes = r.getBytes(Constants.KeyLen)
     val chainCode = r.getBytes(Constants.KeyLen)
-    val pathLen = r.getInt()
+    val pathLen = r.getUInt().toIntExact
     val path = DerivationPathSerializer.parseBytes(r.getBytes(pathLen))
     new ExtendedSecretKey(keyBytes, chainCode, path)
   }

@@ -2,10 +2,11 @@ package org.ergoplatform.wallet.utils
 
 import org.ergoplatform.ErgoBox
 import org.ergoplatform.ErgoBox.{BoxId, NonMandatoryRegisterId, TokenId}
+import org.ergoplatform.wallet.Constants
 import org.ergoplatform.wallet.boxes.{BoxCertainty, TrackedBox}
 import org.ergoplatform.wallet.mnemonic.{Mnemonic, WordList}
 import org.ergoplatform.wallet.secrets.{DerivationPath, ExtendedSecretKey, Index}
-import org.ergoplatform.wallet.settings.{Constants, EncryptionSettings}
+import org.ergoplatform.wallet.settings.EncryptionSettings
 import org.scalacheck.Arbitrary.arbByte
 import org.scalacheck.{Arbitrary, Gen}
 import scorex.crypto.authds.ADKey
