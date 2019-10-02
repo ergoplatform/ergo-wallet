@@ -19,6 +19,7 @@ class SerializationSpec
       val recovered = serializer.parseBytes(serializer.toBytes(b))
       val bytes = serializer.toBytes(b)
       bytes shouldEqual serializer.toBytes(recovered)
+      b shouldEqual recovered
     }
   }
 

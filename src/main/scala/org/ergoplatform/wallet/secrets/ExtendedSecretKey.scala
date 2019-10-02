@@ -30,6 +30,15 @@ final class ExtendedSecretKey(val keyBytes: Array[Byte],
   def isErased: Boolean = keyBytes.forall(_ == 0x00)
 
   def zeroSecret(): Unit = util.Arrays.fill(keyBytes, 0: Byte)
+
+  override def equals(obj: Any): Boolean = obj match {
+    case that: ExtendedSecretKey =>
+      java.util.Arrays.equals(that.keyBytes, this.keyBytes) &&
+        java.util.Arrays.equals(that.chainCode, this.chainCode) &&
+        that.path == this.path
+    case _ => false
+  }
+
 }
 
 object ExtendedSecretKey {
