@@ -1,7 +1,7 @@
 package org.ergoplatform.wallet.serialization
 
 import org.ergoplatform.wallet.boxes.TrackedBoxSerializer
-import org.ergoplatform.wallet.secrets.DerivationPathSerializer
+import org.ergoplatform.wallet.secrets.{DerivationPathSerializer, ExtendedSecretKeySerializer}
 import org.ergoplatform.wallet.utils.Generators
 import org.scalacheck.Gen
 import org.scalatest.prop.GeneratorDrivenPropertyChecks
@@ -19,6 +19,7 @@ class SerializationSpec
       val recovered = serializer.parseBytes(serializer.toBytes(b))
       val bytes = serializer.toBytes(b)
       bytes shouldEqual serializer.toBytes(recovered)
+      b shouldEqual recovered
     }
   }
 
@@ -28,6 +29,10 @@ class SerializationSpec
 
   property("TrackedBox serialization") {
     checkSerializationRoundtrip(trackedBoxGen, TrackedBoxSerializer)
+  }
+
+  property("ExtendedSecretKey serialization") {
+    checkSerializationRoundtrip(extendedSecretGen, ExtendedSecretKeySerializer)
   }
 
 }

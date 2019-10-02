@@ -4,8 +4,10 @@ import java.math.BigInteger
 import java.util
 
 import org.bouncycastle.util.BigIntegers
+import org.ergoplatform.wallet.Constants
 import org.ergoplatform.wallet.crypto.HmacSHA512
-import org.ergoplatform.wallet.settings.Constants
+import org.ergoplatform.wallet.serialization.ErgoWalletSerializer
+import scorex.util.serialization.{Reader, Writer}
 import sigmastate.basics.DLogProtocol.DLogProverInput
 import sigmastate.interpreter.CryptoConstants
 
@@ -28,6 +30,15 @@ final class ExtendedSecretKey(val keyBytes: Array[Byte],
   def isErased: Boolean = keyBytes.forall(_ == 0x00)
 
   def zeroSecret(): Unit = util.Arrays.fill(keyBytes, 0: Byte)
+
+  override def equals(obj: Any): Boolean = obj match {
+    case that: ExtendedSecretKey =>
+      java.util.Arrays.equals(that.keyBytes, this.keyBytes) &&
+        java.util.Arrays.equals(that.chainCode, this.chainCode) &&
+        that.path == this.path
+    case _ => false
+  }
+
 }
 
 object ExtendedSecretKey {
@@ -60,6 +71,28 @@ object ExtendedSecretKey {
   def deriveMasterKey(seed: Array[Byte]): ExtendedSecretKey = {
     val (masterKey, chainCode) = HmacSHA512.hash(Constants.BitcoinSeed, seed).splitAt(Constants.KeyLen)
     new ExtendedSecretKey(masterKey, chainCode, DerivationPath.MasterPath)
+  }
+
+}
+
+object ExtendedSecretKeySerializer extends ErgoWalletSerializer[ExtendedSecretKey] {
+
+  import scorex.util.Extensions._
+
+  override def serialize(obj: ExtendedSecretKey, w: Writer): Unit = {
+    w.putBytes(obj.keyBytes)
+    w.putBytes(obj.chainCode)
+    val pathBytes = DerivationPathSerializer.toBytes(obj.path)
+    w.putUInt(pathBytes.length)
+    w.putBytes(pathBytes)
+  }
+
+  override def parse(r: Reader): ExtendedSecretKey = {
+    val keyBytes = r.getBytes(Constants.KeyLen)
+    val chainCode = r.getBytes(Constants.KeyLen)
+    val pathLen = r.getUInt().toIntExact
+    val path = DerivationPathSerializer.parseBytes(r.getBytes(pathLen))
+    new ExtendedSecretKey(keyBytes, chainCode, path)
   }
 
 }

@@ -1,8 +1,8 @@
 package org.ergoplatform.wallet.secrets
 
 import org.bouncycastle.util.BigIntegers
+import org.ergoplatform.wallet.Constants
 import org.ergoplatform.wallet.crypto.HmacSHA512
-import org.ergoplatform.wallet.settings.Constants
 import sigmastate.basics.DLogProtocol.{DLogProverInput, ProveDlog}
 import sigmastate.interpreter.CryptoConstants
 

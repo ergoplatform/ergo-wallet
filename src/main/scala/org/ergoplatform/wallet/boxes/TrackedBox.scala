@@ -1,7 +1,7 @@
 package org.ergoplatform.wallet.boxes
 
+import org.ergoplatform.wallet.Constants
 import org.ergoplatform.wallet.serialization.ErgoWalletSerializer
-import org.ergoplatform.wallet.settings.Constants
 import org.ergoplatform.{ErgoBox, ErgoLikeTransaction}
 import scorex.util.serialization.{Reader, Writer}
 import scorex.util.{ModifierId, bytesToId, idToBytes}
