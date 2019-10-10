@@ -26,7 +26,7 @@ class EncryptionSpec
     }
   }
 
-  property("AES encryption/decryption - failure on corrupted data decryption") {
+  ignore("AES encryption/decryption - failure on corrupted data decryption") {
     forAll(dataGen, passwordGen, encryptionSettingsGen) { (data, pass, settings) =>
       val iv = scorex.utils.Random.randomBytes(16)
       val salt = scorex.utils.Random.randomBytes(32)
