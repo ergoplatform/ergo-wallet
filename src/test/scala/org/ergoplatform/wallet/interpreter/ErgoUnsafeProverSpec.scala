@@ -6,8 +6,8 @@ import org.ergoplatform.wallet.secrets.ExtendedSecretKey
 import org.ergoplatform.wallet.utils.Generators
 import org.ergoplatform._
 import org.scalacheck.Gen
-import org.scalatest.prop.GeneratorDrivenPropertyChecks
 import org.scalatest.{FlatSpec, Matchers}
+import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 import scorex.crypto.authds.ADDigest
 import scorex.util.Random
 import scorex.util.encode.Base16
@@ -20,7 +20,11 @@ import sigmastate.interpreter.CryptoConstants
 import special.collection.Coll
 import special.sigma.{Header, PreHeader}
 
-class ErgoUnsafeProverSpec extends FlatSpec with GeneratorDrivenPropertyChecks with Matchers with Generators {
+class ErgoUnsafeProverSpec
+  extends FlatSpec
+    with ScalaCheckDrivenPropertyChecks
+    with Matchers
+    with Generators {
 
   it should "produce the same proof as a fully-functional prover" in {
     val entropy = Random.randomBytes(32)
@@ -54,9 +58,9 @@ class ErgoUnsafeProverSpec extends FlatSpec with GeneratorDrivenPropertyChecks w
 
       signedTxFull.inputs.map(_.spendingProof.proof).zip(signedTxFull.inputs.map(_.spendingProof.proof))
         .foreach { case (fullProof, unsafeProof) =>
-        ErgoSignature.verify(unsignedTx.messageToSign, fullProof, extendedSecretKey.publicKey.key.h) shouldBe
-          ErgoSignature.verify(unsignedTx.messageToSign, unsafeProof, extendedSecretKey.publicKey.key.h)
-      }
+          ErgoSignature.verify(unsignedTx.messageToSign, fullProof, extendedSecretKey.publicKey.key.h) shouldBe
+            ErgoSignature.verify(unsignedTx.messageToSign, unsafeProof, extendedSecretKey.publicKey.key.h)
+        }
     }
   }
 
