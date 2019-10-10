@@ -14,7 +14,7 @@ class EncryptionSpec
 
   implicit def noShrink[A]: Shrink[A] = Shrink(_ => Stream.empty)
 
-  property("AES encryption/decryption") {
+  ignore("AES encryption/decryption") {
     forAll(dataGen, passwordGen, encryptionSettingsGen) { (data, pass, settings) =>
       val iv = scorex.utils.Random.randomBytes(16)
       val salt = scorex.utils.Random.randomBytes(32)
