@@ -4,8 +4,9 @@ import java.text.Normalizer.Form.NFKD
 import java.text.Normalizer.normalize
 
 import org.ergoplatform.wallet.utils.Generators
-import org.scalatest.prop.{Checkers, GeneratorDrivenPropertyChecks, TableDrivenPropertyChecks}
+import org.scalatest.prop.TableDrivenPropertyChecks
 import org.scalatest.{FlatSpec, Matchers}
+import org.scalatestplus.scalacheck._
 import scorex.util.encode.Base16
 
 import scala.util.Try
@@ -14,7 +15,7 @@ class MnemonicSpec
   extends FlatSpec
     with Matchers
     with TableDrivenPropertyChecks
-    with GeneratorDrivenPropertyChecks
+    with ScalaCheckDrivenPropertyChecks
     with Checkers
     with Generators {
 
